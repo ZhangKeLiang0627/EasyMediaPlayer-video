@@ -1,16 +1,28 @@
 #include "MyPlayer.h"
 
-int CallbackForTPlayer(void *pUserData, int msg,int param0, void *param1);
+int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1);
 
 MediaPlayer::MediaPlayer(string *url)
 {
-    prepareOverFlag = false;
-    sem_init(&sem, 0, 0);       //初始化信号量
+    _prepareFinishFlag = false;
 
-    mTPlayer = TPlayerCreate(CEDARX_PLAYER);        //创建播放器
-    TPlayerSetNotifyCallback(mTPlayer, CallbackForTPlayer , this);          //设置消息回调函数
+    // 创建播放器
+    mTPlayer = TPlayerCreate(CEDARX_PLAYER);
+    if (mTPlayer == nullptr)
+    {
+        printf("[Player] can not create tplayer, quit.\n");
+        return -1;
+    }
+    // 设置消息回调函数
+    TPlayerSetNotifyCallback(mTPlayer, CallbackForTPlayer, this);
+    TPlayerReset(mTPlayer);
+    TPlayerSetDebugFlag(mTPlayer, 0);
 
-    if(url != nullptr)
+    // 初始化信号量
+    sem_init(&sem, 0, 0);
+
+    // url路径不为空，则开始播放音视频
+    if (url != nullptr)
     {
         sourceUrl = *url;
         PlayNewVideo(sourceUrl);
@@ -19,7 +31,16 @@ MediaPlayer::MediaPlayer(string *url)
 
 MediaPlayer::~MediaPlayer(void)
 {
+    if (!mTPlayer)
+    {
+        printf("[Player] player not init.\n");
+        return -1;
+    }
+
+    printf("[Player] player reset.\n");
     TPlayerReset(mTPlayer);
+
+    printf("[Player] player destroy.\n");
     TPlayerDestroy(mTPlayer);
 
     sem_destroy(&sem);
@@ -30,25 +51,50 @@ MediaPlayer::~MediaPlayer(void)
  */
 bool MediaPlayer::PlayNewVideo(string &url)
 {
-    prepareOverFlag = false;
-    sourceUrl = url;
+    _prepareFinishFlag = false;
+    _sourceUrl = url;
 
-    TPlayerReset(mTPlayer);         //复位播放器
-    TPlayerSetDataSource(mTPlayer, sourceUrl.c_str(), NULL);        //设置文件url
-    TPlayerPrepareAsync(mTPlayer);      //解析头部信息
+    // 复位播放器
+    TPlayerReset(mTPlayer);
 
-    struct timespec timeout = {.tv_sec = 3, .tv_nsec = 0};
-
-    int ret = sem_timedwait(&sem, &timeout);     //等待信号量,超时时间3 s
-    if(ret != 0)
+    // 设置播放文件路径url
+    if (TPlayerSetDataSource(mTPlayer, sourceUrl.c_str(), NULL) != 0)
     {
-        printf("MediaPlayer prepare failed, url=%s\n", sourceUrl.c_str());
+        printf("[Player] TPlayerSetDataSource() return fail.\n");
         return false;
     }
+    else
+    {
+        printf("[Player] setDataSource end.\n");
+    }
 
-    TPlayerSetHoldLastPicture(mTPlayer, 0);     //不保留最后一帧
-    TPlayerSetLooping(mTPlayer, true);          //循环播放
-    prepareOverFlag = true;
+    // 解析头部信息
+    if (TPlayerPrepareAsync(mTPlayer) != 0)
+    {
+        printf("[Player] TPlayerPrepareAsync() return fail.\n");
+        return false;
+    }
+    else
+    {
+        printf("[Player] preparing...\n");
+    }
+
+    // 等待信号量，超时时间 3s
+    struct timespec timeout = {.tv_sec = 3, .tv_nsec = 0};
+    int ret = sem_timedwait(&sem, &timeout);
+    if (ret != 0)
+    {
+        printf("[Player] MediaPlayer prepare failed, url=%s\n", sourceUrl.c_str());
+        return false;
+    }
+    else
+    {
+        printf("[Player] prepared successfully!\n", sourceUrl.c_str());
+    }
+
+    TPlayerSetHoldLastPicture(mTPlayer, 0); // 不保留最后一帧
+    TPlayerSetLooping(mTPlayer, true);      // 循环播放
+    _prepareFinishFlag = true;
 
     return true;
 }
@@ -58,7 +104,7 @@ bool MediaPlayer::PlayNewVideo(string &url)
  */
 void MediaPlayer::Start(void)
 {
-    if(prepareOverFlag !=false)
+    if (_prepareFinishFlag != false)
         TPlayerStart(mTPlayer);
 }
 
@@ -67,7 +113,7 @@ void MediaPlayer::Start(void)
  */
 void MediaPlayer::Pause(void)
 {
-    if(prepareOverFlag !=false)
+    if (_prepareFinishFlag != false)
         TPlayerPause(mTPlayer);
 }
 
@@ -75,21 +121,21 @@ void MediaPlayer::Pause(void)
  * @brief 设置播放时间点
  * @param seekMs 播放时间点 ms
  */
-void MediaPlayer::SetCurrent(int seekMs)
+void MediaPlayer::SetCurrentPos(int seekMs)
 {
-    if(prepareOverFlag !=false)
+    if (_prepareFinishFlag != false)
         TPlayerSeekTo(mTPlayer, seekMs);
 }
 
 /**
  * @brief 获取当前播放时间点
- * @retval 当前播放的时间点 ms
+ * @retval 当前播放的时间点（ms）
  */
-int MediaPlayer::GetCurrent(void)
+int MediaPlayer::GetCurrentPos(void)
 {
     int ms = 0;
 
-    if(prepareOverFlag !=false)
+    if (_prepareFinishFlag != false)
         TPlayerGetCurrentPosition(mTPlayer, &ms);
 
     return ms;
@@ -97,13 +143,13 @@ int MediaPlayer::GetCurrent(void)
 
 /**
  * @brief 获取播放总时长
- * @retval 播放总时长 ms
+ * @retval 播放总时长（ms）
  */
 int MediaPlayer::GetDuration(void)
 {
     int ms = 3000;
 
-    if(prepareOverFlag !=false)
+    if (_prepareFinishFlag != false)
         TPlayerGetDuration(mTPlayer, &ms);
 
     return ms;
@@ -117,7 +163,7 @@ int MediaPlayer::GetVolume(void)
 {
     int volume = 0;
 
-    if(prepareOverFlag !=false)
+    if (_prepareFinishFlag != false)
         volume = TPlayerGetVolume(mTPlayer);
 
     return volume;
@@ -129,19 +175,19 @@ int MediaPlayer::GetVolume(void)
  */
 void MediaPlayer::SetVolume(int volume)
 {
-    if(prepareOverFlag !=false)
-        TPlayerSetVolume(mTPlayer,  volume);
+    if (_prepareFinishFlag != false)
+        TPlayerSetVolume(mTPlayer, volume);
 }
 
 /**
  * @brief 获取当前视频播放状态
- * @retval  false 视频未播放
+ * @retval false 视频未播放
  * @retval true 视频正在播放
  */
 bool MediaPlayer::GetState(void)
 {
     bool state = false;
-    if(prepareOverFlag !=false)
+    if (_prepareFinishFlag != false)
         state = TPlayerIsPlaying(mTPlayer);
 
     return state;
@@ -154,17 +200,88 @@ bool MediaPlayer::GetState(void)
  * @param param0 参赛0
  * @param param1 参数1
  */
-int CallbackForTPlayer(void *pUserData, int msg,int param0, void *param1)
+int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
 {
     MediaPlayer *player = static_cast<MediaPlayer *>(pUserData);
 
-    switch(msg)
+    switch (msg)
     {
-        case TPLAYER_NOTIFY_PREPARED:
-            sem_post(&player->sem);     //发送信号量
+    case TPLAYER_NOTIFY_PREPARED:
+    {
+        // 发送信号量
+        printf("[PlayerCb] TPLAYER_NOTIFY_PREPARED\n");
+        sem_post(&player->sem);
         break;
+    }
+    case TPLAYER_NOTIFY_PLAYBACK_COMPLETE:
+    {
+        printf("[PlayerCb] TPLAYER_NOTIFY_PLAYBACK_COMPLETE\n");
+        break;
+    }
+    case TPLAYER_NOTIFY_SEEK_COMPLETE:
+    {
+        printf("[PlayerCb] TPLAYER_NOTIFY_SEEK_COMPLETE\n");
+        break;
+    }
+    case TPLAYER_NOTIFY_MEDIA_ERROR:
+    {
+        switch (param0)
+        {
+        case TPLAYER_MEDIA_ERROR_UNKNOWN:
+        {
+            printf("[PlayerCb] erro type: TPLAYER_MEDIA_ERROR_UNKNOWN\n");
+            break;
+        }
+        case TPLAYER_MEDIA_ERROR_UNSUPPORTED:
+        {
+            printf("[PlayerCb] erro type: TPLAYER_MEDIA_ERROR_UNSUPPORTED\n");
+            break;
+        }
+        case TPLAYER_MEDIA_ERROR_IO:
+        {
+            printf("[PlayerCb] erro type: TPLAYER_MEDIA_ERROR_IO\n");
+            break;
+        }
+        }
+        printf("[PlayerCb] error: open media source fail.\n");
+        break;
+    }
+    case TPLAYER_NOTIFY_NOT_SEEKABLE:
+    {
+        printf("[PlayerCb] TPLAYER_NOTIFY_NOT_SEEKABLE\n");
+        break;
+    }
+    case TPLAYER_NOTIFY_BUFFER_START:
+    {
+        printf("[PlayerCb] TPLAYER_NOTIFY_BUFFER_START\n");
+        break;
+    }
+    case TPLAYER_NOTIFY_BUFFER_END:
+    {
+        printf("[PlayerCb] TPLAYER_NOTIFY_BUFFER_END\n");
+        break;
+    }
+    case TPLAYER_NOTIFY_VIDEO_FRAME:
+    {
+        /* printf("get the decoded video frame\n"); */
+        break;
+    }
+    case TPLAYER_NOTIFY_AUDIO_FRAME:
+    {
+        /* printf("get the decoded audio frame\n"); */
+        break;
+    }
+    case TPLAYER_NOTIFY_SUBTITLE_FRAME:
+    {
+        /* printf("get the decoded subtitle frame\n"); */
+        break;
+    }
 
-        default:;
+    default
+    {
+        printf("[PlayerCb] warning: unknown callback from Tinaplayer.\n");
+        break;
+    }
     }
 
     return 0;

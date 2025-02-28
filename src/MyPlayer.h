@@ -12,33 +12,36 @@ class MediaPlayer;
 class MediaPlayer
 {
 public:
-
 private:
-    string sourceUrl;       //播放的视频路径
-    TPlayer *mTPlayer;      //播放器
-    sem_t sem;      //异步通知信号量
-    bool prepareOverFlag;
+    TPlayer *mTPlayer;       // 播放器
+    string _sourceUrl;       // 播放的视频路径
+    sem_t _sem;              // 异步通知信号量
+    bool _prepareFinishFlag; // 音视频是否准备标志位
 
-    friend int CallbackForTPlayer(void *pUserData, int msg,int param0, void *param1);
+    friend int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1);
+
 public:
     MediaPlayer(string *url = nullptr);
     ~MediaPlayer(void);
 
     void Start(void);
     void Pause(void);
-    void SetCurrent(int seekMs);
-    int GetCurrent(void);
+    void SetCurrentPos(int seekMs);
+    int GetCurrentPos(void);
     int GetDuration(void);
     int GetVolume(void);
     void SetVolume(int volume);
     bool GetState(void);
+    void SetLoop(bool isLoop);
+    int SetDisplayArea(int x, int y, unsigned int width, unsigned int height);
+    int SetRotate(TplayerVideoRotateType rotateDegree);
+    MediaInfo *GetMediaInfo(void)
+    {
+        return TPlayerGetMediaInfo(mTPlayer);
+    }
 
     bool PlayNewVideo(string &url);
-
-    bool IsPrepareOver(void) const { return prepareOverFlag; }
+    bool IsPrepareFinish(void) const { return _prepareFinishFlag; }
 };
-
-
-
 
 #endif
