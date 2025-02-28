@@ -2,7 +2,7 @@
 #include "lvgl/demos/lv_demos.h"
 #include "lv_drivers/display/sunxifb.h"
 #include "lv_drivers/indev/evdev.h"
-#include "src/mediaPlayer.h"
+#include "./src/MediaPlayer.h"
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
