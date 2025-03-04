@@ -3,6 +3,7 @@
 #include "lv_drivers/display/sunxifb.h"
 #include "lv_drivers/indev/evdev.h"
 #include "./src/MediaPlayer.h"
+
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
@@ -12,20 +13,17 @@
 #include <signal.h>
 #include <tplayer.h>
 
-TPlayer *mTPlayer;
-MediaInfo *mMediaInfo;
+// TPlayer *mTPlayer;
+// MediaInfo *mMediaInfo;
 
-bool mPreparedFlag;
-bool mLoopFlag;
-bool mSetLoop;
-bool mComplete;
-bool mSeekable;
+MediaPlayer mp;
+
+// bool mPreparedFlag;
+// bool mLoopFlag;
+// bool mSetLoop;
+// bool mComplete;
+// bool mSeekable;
 bool isPlaying = false;
-
-uint8_t bQuit = 0;
-
-// #define LCD_WIDTH 720.0
-#define LCD_WIDTH 480.0
 
 lv_obj_t *Btn_Create(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs);
 static void button_event_handler(lv_event_t *e);
@@ -35,20 +33,9 @@ static void terminate(int sig_no)
 {
     printf("Got signal %d, exiting ...\n", sig_no);
 
-    tplayer_exit();
-    sunxifb_free((void **)&lv_disp_get_default()->driver->draw_buf->buf1, "lv_examples");
+    sunxifb_free((void **)&lv_disp_get_default()->driver->draw_buf->buf1, (char*)"lv_examples");
     sunxifb_exit();
     lv_deinit();
-
-    if (mTPlayer != NULL)
-    {
-        TPlayerDestroy(mTPlayer);
-        mTPlayer = NULL;
-        printf("TPlayerDestroy() successfully\n");
-    }
-
-    printf("destroy tplayer!\n");
-    printf("tplaydemo exit!\n");
 
     exit(0);
 }
@@ -71,126 +58,10 @@ static void install_sig_handler(void)
     signal(SIGUSR2, terminate);
 }
 
-//* a callback for tplayer.
-int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
-{
-    CEDARX_UNUSE(param1);
-    switch (msg)
-    {
-    case TPLAYER_NOTIFY_PREPARED:
-    {
-        printf("TPLAYER_NOTIFY_PREPARED,has prepared.\n");
-        mPreparedFlag = 1;
-        break;
-    }
-
-    case TPLAYER_NOTIFY_PLAYBACK_COMPLETE:
-    {
-        printf("TPLAYER_NOTIFY_PLAYBACK_COMPLETE\n");
-        mComplete = 1;
-        // PowerManagerReleaseWakeLock("tplayerdemo");
-        break;
-    }
-
-    case TPLAYER_NOTIFY_SEEK_COMPLETE:
-    {
-        printf("TPLAYER_NOTIFY_SEEK_COMPLETE>>>>info: seek ok.\n");
-        break;
-    }
-
-    case TPLAYER_NOTIFY_MEDIA_ERROR:
-    {
-        switch (param0)
-        {
-        case TPLAYER_MEDIA_ERROR_UNKNOWN:
-        {
-            printf("erro type:TPLAYER_MEDIA_ERROR_UNKNOWN\n");
-            break;
-        }
-        case TPLAYER_MEDIA_ERROR_UNSUPPORTED:
-        {
-            printf("erro type:TPLAYER_MEDIA_ERROR_UNSUPPORTED\n");
-            break;
-        }
-        case TPLAYER_MEDIA_ERROR_IO:
-        {
-            printf("erro type:TPLAYER_MEDIA_ERROR_IO\n");
-            break;
-        }
-        }
-        printf("TPLAYER_NOTIFY_MEDIA_ERROR\n");
-        printf("error: open media source fail.\n");
-        break;
-    }
-
-    case TPLAYER_NOTIFY_NOT_SEEKABLE:
-    {
-        mSeekable = 0;
-        printf("info: media source is unseekable.\n");
-        break;
-    }
-
-    case TPLAYER_NOTIFY_BUFFER_START:
-    {
-        printf("have no enough data to play\n");
-        break;
-    }
-
-    case TPLAYER_NOTIFY_BUFFER_END:
-    {
-        printf("have enough data to play again\n");
-        break;
-    }
-
-    case TPLAYER_NOTIFY_VIDEO_FRAME:
-    {
-        // printf("get the decoded video frame\n");
-        break;
-    }
-
-    case TPLAYER_NOTIFY_AUDIO_FRAME:
-    {
-        // printf("get the decoded audio frame\n");
-        break;
-    }
-
-    case TPLAYER_NOTIFY_SUBTITLE_FRAME:
-    {
-        // printf("get the decoded subtitle frame\n");
-        break;
-    }
-    case TPLAYER_NOTYFY_DECODED_VIDEO_SIZE:
-    {
-        int w, h, y;
-        w = ((int *)param1)[0]; // real decoded video width
-        h = ((int *)param1)[1]; // real decoded video height
-        printf("*****tplayerdemo:video decoded width = %d,height = %d\n", w, h);
-        float divider = 1;
-        if (w > LCD_WIDTH)
-        {
-            divider = w / LCD_WIDTH;
-        }
-        w = w / divider;
-        h = h / divider;
-        y = (LCD_WIDTH - h) / 2;
-        printf("real set to display rect:w = %d,h = %d\n", w, h);
-        TPlayerSetDisplayRect(mTPlayer, 0, y, w, h);
-        break;
-    }
-
-    default:
-    {
-        // printf("warning: unknown callback from Tinaplayer. %d\n", msg);
-        break;
-    }
-    }
-    return 0;
-}
-
 int main(int argc, char *argv[])
 {
 
-    printf("[Sys] lv_myPlayer begin!\n");
+    printf("[Sys] EasyMediaPlayer begin!\n");
 
     if (argc == 1)
     {
@@ -217,7 +88,7 @@ int main(int argc, char *argv[])
     sunxifb_get_sizes(&width, &height);
 
     static lv_color_t *buf;
-    buf = (lv_color_t *)sunxifb_alloc(width * height * sizeof(lv_color_t), "lv_examples");
+    buf = (lv_color_t *)sunxifb_alloc(width * height * sizeof(lv_color_t), (char*)"lv_examples");
 
     if (buf == NULL)
     {
@@ -255,19 +126,9 @@ int main(int argc, char *argv[])
     // tplayer初始化
     install_sig_handler();
 
-    mTPlayer = TPlayerCreate(CEDARX_PLAYER);
-    TPlayerSetDebugFlag(mTPlayer, false);
-    if (mTPlayer == NULL)
-    {
-        printf("can not create tplayer, quit.\n");
-        TPlayerDestroy(mTPlayer);
-        return -1;
-    }
-    TPlayerSetNotifyCallback(mTPlayer, CallbackForTPlayer, (void *)NULL);
-    TPlayerSetLooping(mTPlayer, 1);
-    TPlayerSetDataSource(mTPlayer, argv[1], NULL);
-    TPlayerPrepare(mTPlayer);
-    // TPlayerStart(mTPlayer);
+    std::string videoPath = argv[1];
+    
+    mp.SetNewVideo(videoPath);
 
     // 创建画布
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
@@ -387,7 +248,8 @@ static void button_event_handler(lv_event_t *e)
             lv_style_set_bg_opa(&style_scr_act, LV_OPA_TRANSP);
             lv_obj_report_style_change(&style_scr_act);
 
-            TPlayerStart(mTPlayer);
+            // TPlayerStart(mTPlayer);
+            mp.Start();
         }
         else
         {
@@ -399,7 +261,9 @@ static void button_event_handler(lv_event_t *e)
             lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
             lv_obj_report_style_change(&style_scr_act);
 
-            TPlayerPause(mTPlayer);
+            // TPlayerPause(mTPlayer);
+            mp.Pause();
+
         }
     }
 }

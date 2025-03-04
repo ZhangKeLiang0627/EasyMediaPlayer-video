@@ -1,6 +1,5 @@
 # Collect the files to compile
-CSRCS += MediaPlayer.c
-CXXSRCS += MyPlayer.cpp
+CXXSRCS += MediaPlayer.cpp
 
 DEPPATH += --dep-path src
 VPATH += :src

@@ -1,51 +1,45 @@
 #ifndef _MEDIAPLAYER_H_
 #define _MEDIAPLAYER_H_
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <pthread.h>
-#include <ctype.h>
-#include <errno.h>
-#include <sys/select.h>
+#include <string>
+#include <semaphore.h>
 #include <tplayer.h>
 
-#define MSG_USRPLAYEXIT 103
+#define LCD_WIDTH 480.0
 
-typedef struct PLAYER_CONTEXT_T {
-    TPlayer *mTPlayer;
-    int mSeekable;
-    int mError;
-    int mVideoFrameNum;
-    bool mPreparedFlag;
-    bool mLoopFlag;
-    bool mSetLoop;
-    bool mCompleteFlag;
-    char mUrl[512];
-    MediaInfo *mMediaInfo;
-    sem_t mPreparedSem;
-} player_context_t;
+class MediaPlayer
+{
+public:
+private:
+    TPlayer *mTPlayer;       // 播放器
+    std::string _sourceUrl;  // 播放的视频路径
+    sem_t _sem;              // 异步通知信号量
+    bool _prepareFinishFlag; // 音视频是否准备标志位
 
-int tplayer_init(TplayerVideoRotateType rotateDegree);
-int tplayer_exit(void);
-int tplayer_play_url(const char *parth);
-int tplayer_play(void);
-int tplayer_setvolume(int volume);
-int tplayer_getvolume();
-int tplayer_pause(void);
-int tplayer_seekto(int nSeekTimeMs);
-int tplayer_stop(void);
-int tplayer_setlooping(bool bLoop);
-int tplayer_loop(int bloop);
-int tplayer_setscaledown(TplayerVideoScaleDownType nHorizonScaleDown,
-        TplayerVideoScaleDownType nVerticalScaleDown);
-int tplayer_setrotate(TplayerVideoRotateType rotateDegree);
-MediaInfo* tplayer_getmediainfo(void);
-int tplayer_getduration(int *msec);
-int tplayer_getcurrentpos(int *msec);
-int tplayer_getcompletestate(void);
-int tplayer_setdisplayrect(int x, int y, unsigned int width,
-        unsigned int height);
+    friend int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1);
+
+public:
+    MediaPlayer(std::string *url = nullptr);
+    ~MediaPlayer(void);
+
+    void Start(void);
+    void Pause(void);
+    void SetCurrentPos(int seekMs);
+    int GetCurrentPos(void);
+    int GetDuration(void);
+    int GetVolume(void);
+    void SetVolume(int volume);
+    bool GetState(void);
+    void SetLoop(bool isLoop);
+    int SetDisplayArea(int x, int y, unsigned int width, unsigned int height);
+    int SetRotate(TplayerVideoRotateType rotateDegree);
+    MediaInfo *GetMediaInfo(void)
+    {
+        return TPlayerGetMediaInfo(mTPlayer);
+    }
+
+    bool SetNewVideo(std::string &url);
+    bool IsPrepareFinish(void) const { return _prepareFinishFlag; }
+};
 
 #endif

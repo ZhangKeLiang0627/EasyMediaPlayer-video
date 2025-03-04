@@ -11,7 +11,7 @@ LVGL_DIR ?= .
 BUILD_DIR = ./build
 VPATH ?= $(LVGL_DIR)
 
-CFLAGS ?= -O3 -g0 -I$(LVGL_DIR)/ -I$(LVGL_DIR)/src/ -Wall
+CFLAGS ?= -O3 -g0 -I$(LVGL_DIR)/ -Wall 
 LDFLAGS ?= -lm
 CXXFLAGS ?= $(CFLAGS)
 
@@ -29,9 +29,8 @@ LDFLAGS += -L/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/lib
 LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++
 
 # Collect the files to compile
-CSRCS += ./src/MediaPlayer.c
-CXXSRCS += ./src/MyPlayer.cpp
-MAINSRC += ./main.c
+CXXSRCS += ./src/MediaPlayer.cpp
+MAINSRC += ./main.cpp
 
 include $(LVGL_DIR)/lvgl/lvgl.mk
 include $(LVGL_DIR)/lv_drivers/lv_drivers.mk
@@ -41,7 +40,7 @@ OBJEXT ?= .o
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
 CXXOBJS = $(CXXSRCS:.cpp=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.cpp=$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS) $(CXXOBJS) $(MAINOBJ)

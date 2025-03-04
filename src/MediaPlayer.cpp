@@ -1,8 +1,8 @@
-#include "MyPlayer.h"
+#include "MediaPlayer.h"
 
 int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1);
 
-MediaPlayer::MediaPlayer(string *url)
+MediaPlayer::MediaPlayer(std::string *url)
 {
     _prepareFinishFlag = false;
 
@@ -11,21 +11,20 @@ MediaPlayer::MediaPlayer(string *url)
     if (mTPlayer == nullptr)
     {
         printf("[Player] can not create tplayer, quit.\n");
-        return -1;
+        return;
     }
+    TPlayerSetDebugFlag(mTPlayer, false);
     // 设置消息回调函数
     TPlayerSetNotifyCallback(mTPlayer, CallbackForTPlayer, this);
-    TPlayerReset(mTPlayer);
-    TPlayerSetDebugFlag(mTPlayer, 0);
 
     // 初始化信号量
-    sem_init(&sem, 0, 0);
+    sem_init(&_sem, 0, 0);
 
     // url路径不为空，则开始播放音视频
     if (url != nullptr)
     {
-        sourceUrl = *url;
-        PlayNewVideo(sourceUrl);
+        _sourceUrl = *url;
+        SetNewVideo(_sourceUrl);
     }
 }
 
@@ -34,7 +33,7 @@ MediaPlayer::~MediaPlayer(void)
     if (!mTPlayer)
     {
         printf("[Player] player not init.\n");
-        return -1;
+        return;
     }
 
     printf("[Player] player reset.\n");
@@ -43,13 +42,13 @@ MediaPlayer::~MediaPlayer(void)
     printf("[Player] player destroy.\n");
     TPlayerDestroy(mTPlayer);
 
-    sem_destroy(&sem);
+    sem_destroy(&_sem);
 }
 
 /**
  * @brief 播放新的视频
  */
-bool MediaPlayer::PlayNewVideo(string &url)
+bool MediaPlayer::SetNewVideo(std::string &url)
 {
     _prepareFinishFlag = false;
     _sourceUrl = url;
@@ -58,7 +57,7 @@ bool MediaPlayer::PlayNewVideo(string &url)
     TPlayerReset(mTPlayer);
 
     // 设置播放文件路径url
-    if (TPlayerSetDataSource(mTPlayer, sourceUrl.c_str(), NULL) != 0)
+    if (TPlayerSetDataSource(mTPlayer, _sourceUrl.c_str(), NULL) != 0)
     {
         printf("[Player] TPlayerSetDataSource() return fail.\n");
         return false;
@@ -81,20 +80,19 @@ bool MediaPlayer::PlayNewVideo(string &url)
 
     // 等待信号量，超时时间 3s
     struct timespec timeout = {.tv_sec = 3, .tv_nsec = 0};
-    int ret = sem_timedwait(&sem, &timeout);
+    int ret = sem_timedwait(&_sem, &timeout);
     if (ret != 0)
     {
-        printf("[Player] MediaPlayer prepare failed, url=%s\n", sourceUrl.c_str());
+        printf("[Player] MediaPlayer prepare failed, url=%s\n", _sourceUrl.c_str());
         return false;
     }
     else
     {
-        printf("[Player] prepared successfully!\n", sourceUrl.c_str());
+        printf("[Player] prepared successfully!\n");
     }
 
     TPlayerSetHoldLastPicture(mTPlayer, 0); // 不保留最后一帧
     TPlayerSetLooping(mTPlayer, true);      // 循环播放
-    _prepareFinishFlag = true;
 
     return true;
 }
@@ -193,6 +191,13 @@ bool MediaPlayer::GetState(void)
     return state;
 }
 
+int MediaPlayer::SetDisplayArea(int x, int y, unsigned int width, unsigned int height)
+{
+    TPlayerSetDisplayRect(mTPlayer, x, y, width, height);
+    return 0;
+}
+
+
 /**
  * @brief  TPlayer消息回调函数
  * @param pUserData 用户数据，设置回调函数时传入
@@ -210,7 +215,8 @@ int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
     {
         // 发送信号量
         printf("[PlayerCb] TPLAYER_NOTIFY_PREPARED\n");
-        sem_post(&player->sem);
+        sem_post(&player->_sem);
+        player->_prepareFinishFlag = true;
         break;
     }
     case TPLAYER_NOTIFY_PLAYBACK_COMPLETE:
@@ -276,8 +282,25 @@ int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
         /* printf("get the decoded subtitle frame\n"); */
         break;
     }
+    case TPLAYER_NOTYFY_DECODED_VIDEO_SIZE: 
+    {
+    int w, h, y;
+    w = ((int *)param1)[0]; // real decoded video width
+    h = ((int *)param1)[1]; // real decoded video height
+    printf("*****tplayerdemo:video decoded width = %d,height = %d\n", w, h);
+    float divider = 1;
+    if(w > LCD_WIDTH) {
+        divider = w / LCD_WIDTH;
+    }
+    w = w / divider;
+    h = h / divider;
+    y = (LCD_WIDTH - h) / 2;
+    printf("real set to display rect:w = %d,h = %d\n", w, h);
+    player->SetDisplayArea(0, y, w, h);
+    break;
+    }
 
-    default
+    default:
     {
         printf("[PlayerCb] warning: unknown callback from Tinaplayer.\n");
         break;
