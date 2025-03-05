@@ -9,9 +9,9 @@
 #include <signal.h>
 #include <string> 
 
-#include "../lvgl/lvgl.h"
-#include "../lv_drivers/display/sunxifb.h"
-#include "../lv_drivers/indev/evdev.h"
-#include "MediaPlayer.h"
+#include "../libs/lvgl/lvgl.h"
+#include "../libs/lv_drivers/display/sunxifb.h"
+#include "../libs/lv_drivers/indev/evdev.h"
+#include "mediaPlayer.h"
 #include "hal.h"
 

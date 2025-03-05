@@ -7,9 +7,9 @@ CXX = /home/hugokkl/tina-sdk/prebuilt/gcc/linux-x86/arm/toolchain-sunxi-musl/too
 BIN = easyMediaPlayer
 
 LVGL_DIR_NAME ?= lvgl
-LVGL_DIR ?= .
+LVGL_DIR ?= ./libs
 BUILD_DIR = ./build
-VPATH ?= $(LVGL_DIR)
+PROJECT_DIR ?= ${shell pwd}
 
 CFLAGS ?= -O3 -g0 -I$(LVGL_DIR)/ -Wall -Wno-unused-function -Wno-unused-variable
 LDFLAGS ?= -lm
@@ -21,7 +21,7 @@ CXXSRCS ?=
 CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include
 CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include/allwinner
 CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include/allwinner/include 
-CFLAGS += -I$(LVGL_DIR)/include
+CFLAGS += -I$(PROJECT_DIR)/include
 
 CFLAGS += -pipe -march=armv7-a -mtune=cortex-a7 -mfpu=neon -mfloat-abi=hard -fstack-protector  
 
@@ -36,7 +36,7 @@ MAINSRC += ./src/main.cpp
 
 include $(LVGL_DIR)/lvgl/lvgl.mk
 include $(LVGL_DIR)/lv_drivers/lv_drivers.mk
-# include $(LVGL_DIR)/src/source.mk
+# include $(PROJECT_DIR)/src/source.mk
 
 OBJEXT ?= .o
 AOBJS = $(ASRCS:.S=$(OBJEXT))
@@ -47,8 +47,8 @@ MAINOBJ = $(MAINSRC:.cpp=$(OBJEXT))
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS) $(CXXOBJS) $(MAINOBJ)
 
-vpath %.c $(VPATH)
-vpath %.cpp $(VPATH)
+# vpath %.c $(VPATH)
+# vpath %.cpp $(VPATH)
 
 ## MAINOBJ -> OBJFILES
 
