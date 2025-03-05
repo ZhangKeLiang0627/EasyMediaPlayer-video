@@ -1,12 +1,16 @@
 #include "hal.h"
 
 /* Signal handler */
-void terminate(int sig_no);
+void signalExitCallback(int signal);
 /* set Signal Callback */
-void install_sig_handler(void);
+void install_signal_handler(void);
 /* LVGL tick get */
 uint32_t custom_tick_get(void);
 
+/**
+ * @brief 硬件抽象层初始化
+ *
+ */
 void HAL::Init(void)
 {
     // LittlevGL init
@@ -58,13 +62,33 @@ void HAL::Init(void)
     lv_indev_t *evdev_indev = lv_indev_drv_register(&indev_drv);
 
     // 注册退出回调函数
-    install_sig_handler();
+    install_signal_handler();
 }
 
-void terminate(int sig_no)
+/**
+ * @brief LVGL处理函数
+ *
+ */
+void HAL::LVGL_Proc(void)
 {
-    printf("[Sys] Got signal %d, exiting ...\n", sig_no);
-    
+    for (;;)
+    {
+        pthread_mutex_lock(&lv_mutex);
+        lv_task_handler();
+        pthread_mutex_unlock(&lv_mutex);
+        usleep(5000);
+    }
+}
+
+/**
+ * @brief 系统退出回调函数
+ *
+ * @param signal
+ */
+void signalExitCallback(int signal)
+{
+    printf("[Sys] Got signal %d, exiting ...\n", signal);
+
     sunxifb_free((void **)&lv_disp_get_default()->driver->draw_buf->buf1, (char *)"lv_examples");
     sunxifb_exit();
     lv_deinit();
@@ -72,22 +96,26 @@ void terminate(int sig_no)
     exit(0);
 }
 
-void install_sig_handler(void)
+/**
+ * @brief 系统退出信号绑定
+ *
+ */
+void install_signal_handler(void)
 {
-    signal(SIGBUS, terminate);
-    signal(SIGFPE, terminate);
-    signal(SIGHUP, terminate);
-    signal(SIGILL, terminate);
-    signal(SIGINT, terminate);
-    signal(SIGIOT, terminate);
-    signal(SIGPIPE, terminate);
-    signal(SIGQUIT, terminate);
-    signal(SIGSEGV, terminate);
-    signal(SIGSYS, terminate);
-    signal(SIGTERM, terminate);
-    signal(SIGTRAP, terminate);
-    signal(SIGUSR1, terminate);
-    signal(SIGUSR2, terminate);
+    signal(SIGBUS, signalExitCallback);
+    signal(SIGFPE, signalExitCallback);
+    signal(SIGHUP, signalExitCallback);
+    signal(SIGILL, signalExitCallback);
+    signal(SIGINT, signalExitCallback);
+    signal(SIGIOT, signalExitCallback);
+    signal(SIGPIPE, signalExitCallback);
+    signal(SIGQUIT, signalExitCallback);
+    signal(SIGSEGV, signalExitCallback);
+    signal(SIGSYS, signalExitCallback);
+    signal(SIGTERM, signalExitCallback);
+    signal(SIGTRAP, signalExitCallback);
+    signal(SIGUSR1, signalExitCallback);
+    signal(SIGUSR2, signalExitCallback);
 }
 
 /* Set in lv_conf.h as `LV_TICK_CUSTOM_SYS_TIME_EXPR` */

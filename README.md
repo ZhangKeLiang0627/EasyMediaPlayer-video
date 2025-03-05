@@ -10,7 +10,7 @@ export STAGING_DIR=/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target
 ## 编译
 
 ```shell
-./build_easyMediaPlayer
+./build.sh
 ```
 
 ## 运行

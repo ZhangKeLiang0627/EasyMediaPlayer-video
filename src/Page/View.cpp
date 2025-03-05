@@ -1,34 +1,12 @@
-#include "../include/common_inc.h"
+#include "View.h"
 
-MediaPlayer mp;
+using namespace Page;
 
-bool isPlaying = false;
+void View::create(Operations &opts)
+{
 
-lv_obj_t *Btn_Create(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs);
-static void button_event_handler(lv_event_t *e);
-
-int main(int argc, char *argv[])
-{   
-    // 请输入需要播放的文件名称
-    printf("[Sys] EasyMediaPlayer begin!\n");
-    if (argc == 1)
-    {
-        printf("[Sys] Please input file name!\n");
-        return -1;
-    }
-    // 清除fb0
-    system("dd if=/dev/zero of=/dev/fb0");
-    
-    // 打开音频通路并设置音量
-    system("amixer sset Headphone unmute");
-    system("amixer sset \"Headphone volume\" 2");
-
-    // Init HAL
-    HAL::Init();
-
-    // tplayer初始化
-    std::string videoPath = argv[1];
-    mp.SetNewVideo(videoPath);
+    // 获取View回调函数集
+    _opts = opts;
 
     // 创建画布
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
@@ -38,6 +16,7 @@ int main(int argc, char *argv[])
     lv_obj_set_style_bg_opa(cont, LV_OPA_TRANSP, 0);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0xcccccc), 0);
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
+    ui.cont = cont;
 
     lv_obj_t *btnCont = lv_obj_create(cont);
     lv_obj_remove_style_all(btnCont);
@@ -46,24 +25,24 @@ int main(int argc, char *argv[])
     lv_obj_set_style_bg_opa(btnCont, LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(btnCont, lv_color_hex(0x6a8d6d), 0);
     lv_obj_align(btnCont, LV_ALIGN_BOTTOM_MID, 0, 42);
-
     lv_obj_set_style_radius(btnCont, 16, LV_PART_MAIN);
+    ui.btnCont.cont = btnCont;
 
-    lv_obj_t *btn = Btn_Create(btnCont, LV_SYMBOL_PLAY, -20);
-
-    lv_obj_add_event_cb(btn, button_event_handler, LV_EVENT_ALL, NULL);
-
-    /* Handle LitlevGL tasks (tickless mode) */
-    while (1)
-    {
-        lv_task_handler();
-        usleep(5000);
-    }
-
-    return 0;
+    lv_obj_t *btn = btnCreate(btnCont, LV_SYMBOL_PLAY, -20);
+    lv_obj_add_event_cb(btn, buttonEventHandler, LV_EVENT_ALL, this);
+    ui.btnCont.btn = btn;
 }
 
-lv_obj_t *Btn_Create(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs)
+void View::release()
+{
+    if (ui.anim_timeline)
+    {
+        lv_anim_timeline_del(ui.anim_timeline);
+        ui.anim_timeline = nullptr;
+    }
+}
+
+lv_obj_t *View::btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs)
 {
     lv_obj_t *obj = lv_obj_create(par);
     lv_obj_remove_style_all(obj);
@@ -99,10 +78,28 @@ lv_obj_t *Btn_Create(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs)
     return obj;
 }
 
-static void button_event_handler(lv_event_t *e)
+/**
+ *@brief 添加一个视频到列表
+ *@param name 视频文件名称
+ */
+void View::addVideoList(const char *name)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *btn = lv_event_get_current_target(e);
+}
+
+/**
+ * @brief 设置视频播放进度显示
+ */
+void View::setPlayProgress(int cur, int total)
+{
+}
+
+void View::buttonEventHandler(lv_event_t *event)
+{
+    View *instance = (View *)lv_event_get_user_data(event);
+    LV_ASSERT_NULL(instance);
+
+    lv_event_code_t code = lv_event_get_code(event);
+    lv_obj_t *obj = lv_event_get_current_target(event);
 
     /* Transparent background style */
     static lv_style_t style_scr_act;
@@ -115,10 +112,10 @@ static void button_event_handler(lv_event_t *e)
 
     if (code == LV_EVENT_SHORT_CLICKED)
     {
-        if (isPlaying == false)
+        if (instance->_isPlaying == false)
         {
-            isPlaying = true;
-            lv_obj_set_style_bg_img_src(btn, LV_SYMBOL_PAUSE, 0);
+            instance->_isPlaying = true;
+            lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PAUSE, 0);
 
             lv_disp_get_default()->driver->screen_transp = 1;
             lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_TRANSP);
@@ -128,19 +125,21 @@ static void button_event_handler(lv_event_t *e)
             lv_style_set_bg_opa(&style_scr_act, LV_OPA_TRANSP);
             lv_obj_report_style_change(&style_scr_act);
 
-            mp.Start();
+            if (instance->_opts.playCb != nullptr)
+                instance->_opts.playCb(NULL); // 继续播放
         }
         else
         {
-            isPlaying = false;
-            lv_obj_set_style_bg_img_src(btn, LV_SYMBOL_PLAY, 0);
+            instance->_isPlaying = false;
+            lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PLAY, 0);
 
             lv_disp_get_default()->driver->screen_transp = 0;
             lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
             lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
             lv_obj_report_style_change(&style_scr_act);
 
-            mp.Pause();
+            if (instance->_opts.pauseCb != nullptr)
+                instance->_opts.pauseCb(); // 暂停播放
         }
     }
 }

@@ -20,6 +20,9 @@ MediaPlayer::MediaPlayer(std::string *url)
     // 初始化信号量
     sem_init(&_sem, 0, 0);
 
+    // 设置循环播放
+    SetLoop(true);
+    
     // url路径不为空，则开始播放音视频
     if (url != nullptr)
     {
@@ -93,7 +96,7 @@ bool MediaPlayer::SetNewVideo(std::string &url)
     // 不保留最后一帧
     TPlayerSetHoldLastPicture(mTPlayer, 0);
     // 循环播放
-    TPlayerSetLooping(mTPlayer, true);
+    SetLoop(1);
 
     return true;
 }
@@ -328,7 +331,7 @@ int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
         int w, h, y;
         w = ((int *)param1)[0]; // real decoded video width
         h = ((int *)param1)[1]; // real decoded video height
-        printf("*****tplayerdemo:video decoded width = %d,height = %d\n", w, h);
+        printf("[PlayerCb] tplayerdemo: video decoded width = %d, height = %d\n", w, h);
         float divider = 1;
         if (w > LCD_WIDTH)
         {
@@ -337,7 +340,7 @@ int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
         w = w / divider;
         h = h / divider;
         y = (LCD_WIDTH - h) / 2;
-        printf("real set to display rect:w = %d,h = %d\n", w, h);
+        printf("[PlayerCb] real set to display rect: w = %d, h = %d\n", w, h);
         player->SetDisplayArea(0, y, w, h);
         break;
     }

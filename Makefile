@@ -11,7 +11,7 @@ LVGL_DIR ?= ./libs
 BUILD_DIR = ./build
 PROJECT_DIR ?= ${shell pwd}
 
-CFLAGS ?= -O3 -g0 -I$(LVGL_DIR)/ -Wall -Wno-unused-function -Wno-unused-variable
+CFLAGS ?= -O3 -g0 -I$(LVGL_DIR)/ -Wall -Wno-unused-function -Wno-unused-variable -Wno-return-type -Wno-sign-compare
 LDFLAGS ?= -lm
 CXXFLAGS ?= $(CFLAGS) 
 
@@ -30,9 +30,12 @@ LDFLAGS += -L/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/lib
 LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++
 
 # Collect the files to compile
-CXXSRCS += ./src/mediaPlayer.cpp
-CXXSRCS += ./src/hal/hal.cpp
-MAINSRC += ./src/main.cpp
+# CXXSRCS += ./src/mediaPlayer.cpp
+# CXXSRCS += ./src/hal/hal.cpp
+# CSRCS += $(shell find -L $(PROJECT_DIR)/src -name "*.c")
+
+MAINSRC += ./main.cpp
+CXXSRCS += $(shell find -L $(PROJECT_DIR)/src -name "*.cpp")
 
 include $(LVGL_DIR)/lvgl/lvgl.mk
 include $(LVGL_DIR)/lv_drivers/lv_drivers.mk
@@ -46,9 +49,6 @@ MAINOBJ = $(MAINSRC:.cpp=$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS) $(CXXOBJS) $(MAINOBJ)
-
-# vpath %.c $(VPATH)
-# vpath %.cpp $(VPATH)
 
 ## MAINOBJ -> OBJFILES
 
