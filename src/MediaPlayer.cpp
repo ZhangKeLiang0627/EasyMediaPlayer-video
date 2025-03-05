@@ -90,9 +90,10 @@ bool MediaPlayer::SetNewVideo(std::string &url)
     {
         printf("[Player] prepared successfully!\n");
     }
-
-    TPlayerSetHoldLastPicture(mTPlayer, 0); // 不保留最后一帧
-    TPlayerSetLooping(mTPlayer, true);      // 循环播放
+    // 不保留最后一帧
+    TPlayerSetHoldLastPicture(mTPlayer, 0);
+    // 循环播放
+    TPlayerSetLooping(mTPlayer, true);
 
     return true;
 }
@@ -155,7 +156,7 @@ int MediaPlayer::GetDuration(void)
 
 /**
  * @brief 获取当前音量
- * @retval 当前音量大小
+ * @retval 当前音量大小（0 ~ 100）
  */
 int MediaPlayer::GetVolume(void)
 {
@@ -191,12 +192,52 @@ bool MediaPlayer::GetState(void)
     return state;
 }
 
-int MediaPlayer::SetDisplayArea(int x, int y, unsigned int width, unsigned int height)
+/**
+ * @brief 设置显示的区域
+ * @param x: 显示区域起始点 x 坐标的值;
+ * @param y: 显示区域起始点 y 坐标的值;
+ * @param width: 显示区域的宽;
+ * @param height: 显示区域的高.
+ * @retval true 成功 / false 失败
+ */
+bool MediaPlayer::SetDisplayArea(int x, int y, unsigned int width, unsigned int height)
 {
-    TPlayerSetDisplayRect(mTPlayer, x, y, width, height);
-    return 0;
+    if (_prepareFinishFlag != false)
+    {
+        TPlayerSetDisplayRect(mTPlayer, x, y, width, height);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
+/**
+ * @brief 设置当前视频播放器是否循环播放
+ * @param isLoop 是否循环（true -> 循环 / false -> 不循环）
+ */
+void MediaPlayer::SetLoop(bool isLoop)
+{
+    TPlayerSetLooping(mTPlayer, isLoop);
+}
+
+/**
+ * @brief 设置视频旋转的角度
+ * @retval true 成功 / false 失败
+ */
+bool MediaPlayer::SetRotate(TplayerVideoRotateType rotateDegree)
+{
+    bool state = false;
+    if (TPlayerSetRotate(mTPlayer, rotateDegree) == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 /**
  * @brief  TPlayer消息回调函数
@@ -282,22 +323,23 @@ int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
         /* printf("get the decoded subtitle frame\n"); */
         break;
     }
-    case TPLAYER_NOTYFY_DECODED_VIDEO_SIZE: 
+    case TPLAYER_NOTYFY_DECODED_VIDEO_SIZE:
     {
-    int w, h, y;
-    w = ((int *)param1)[0]; // real decoded video width
-    h = ((int *)param1)[1]; // real decoded video height
-    printf("*****tplayerdemo:video decoded width = %d,height = %d\n", w, h);
-    float divider = 1;
-    if(w > LCD_WIDTH) {
-        divider = w / LCD_WIDTH;
-    }
-    w = w / divider;
-    h = h / divider;
-    y = (LCD_WIDTH - h) / 2;
-    printf("real set to display rect:w = %d,h = %d\n", w, h);
-    player->SetDisplayArea(0, y, w, h);
-    break;
+        int w, h, y;
+        w = ((int *)param1)[0]; // real decoded video width
+        h = ((int *)param1)[1]; // real decoded video height
+        printf("*****tplayerdemo:video decoded width = %d,height = %d\n", w, h);
+        float divider = 1;
+        if (w > LCD_WIDTH)
+        {
+            divider = w / LCD_WIDTH;
+        }
+        w = w / divider;
+        h = h / divider;
+        y = (LCD_WIDTH - h) / 2;
+        printf("real set to display rect:w = %d,h = %d\n", w, h);
+        player->SetDisplayArea(0, y, w, h);
+        break;
     }
 
     default:

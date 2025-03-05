@@ -11,9 +11,9 @@ LVGL_DIR ?= .
 BUILD_DIR = ./build
 VPATH ?= $(LVGL_DIR)
 
-CFLAGS ?= -O3 -g0 -I$(LVGL_DIR)/ -Wall 
+CFLAGS ?= -O3 -g0 -I$(LVGL_DIR)/ -Wall -Wno-unused-function -Wno-unused-variable
 LDFLAGS ?= -lm
-CXXFLAGS ?= $(CFLAGS)
+CXXFLAGS ?= $(CFLAGS) 
 
 CSRCS ?= 
 CXXSRCS ?= 

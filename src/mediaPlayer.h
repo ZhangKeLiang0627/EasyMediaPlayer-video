@@ -31,8 +31,8 @@ public:
     void SetVolume(int volume);
     bool GetState(void);
     void SetLoop(bool isLoop);
-    int SetDisplayArea(int x, int y, unsigned int width, unsigned int height);
-    int SetRotate(TplayerVideoRotateType rotateDegree);
+    bool SetDisplayArea(int x, int y, unsigned int width, unsigned int height);
+    bool SetRotate(TplayerVideoRotateType rotateDegree);
     MediaInfo *GetMediaInfo(void)
     {
         return TPlayerGetMediaInfo(mTPlayer);

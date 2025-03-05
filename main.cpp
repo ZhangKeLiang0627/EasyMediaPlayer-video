@@ -11,18 +11,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
-#include <tplayer.h>
-
-// TPlayer *mTPlayer;
-// MediaInfo *mMediaInfo;
 
 MediaPlayer mp;
 
-// bool mPreparedFlag;
-// bool mLoopFlag;
-// bool mSetLoop;
-// bool mComplete;
-// bool mSeekable;
 bool isPlaying = false;
 
 lv_obj_t *Btn_Create(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs);
@@ -33,7 +24,7 @@ static void terminate(int sig_no)
 {
     printf("Got signal %d, exiting ...\n", sig_no);
 
-    sunxifb_free((void **)&lv_disp_get_default()->driver->draw_buf->buf1, (char*)"lv_examples");
+    sunxifb_free((void **)&lv_disp_get_default()->driver->draw_buf->buf1, (char *)"lv_examples");
     sunxifb_exit();
     lv_deinit();
 
@@ -75,20 +66,19 @@ int main(int argc, char *argv[])
     system("amixer sset Headphone unmute");
     system("amixer sset \"Headphone volume\" 2");
 
-    /*LittlevGL init*/
+    // LittlevGL init
     lv_init();
-
     uint32_t rotated = LV_DISP_ROT_NONE;
 
-    /*Linux frame buffer device init*/
+    // Linux frame buffer device init
     sunxifb_init(rotated);
 
-    /*A buffer for LittlevGL to draw the screen's content*/
+    // A buffer for LittlevGL to draw the screen's content
     static uint32_t width, height;
     sunxifb_get_sizes(&width, &height);
 
     static lv_color_t *buf;
-    buf = (lv_color_t *)sunxifb_alloc(width * height * sizeof(lv_color_t), (char*)"lv_examples");
+    buf = (lv_color_t *)sunxifb_alloc(width * height * sizeof(lv_color_t), (char *)"lv_examples");
 
     if (buf == NULL)
     {
@@ -97,11 +87,11 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    /*Initialize a descriptor for the buffer*/
+    // Initialize a descriptor for the buffer
     static lv_disp_draw_buf_t disp_buf;
     lv_disp_draw_buf_init(&disp_buf, buf, NULL, width * height);
 
-    /*Initialize and register a display driver*/
+    // Initialize and register a display driver
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
     disp_drv.draw_buf = &disp_buf;
@@ -117,17 +107,18 @@ int main(int argc, char *argv[])
 
     evdev_init();
     static lv_indev_drv_t indev_drv;
-    lv_indev_drv_init(&indev_drv);          /*Basic initialization*/
-    indev_drv.type = LV_INDEV_TYPE_POINTER; /*See below.*/
-    indev_drv.read_cb = evdev_read;         /*See below.*/
-    /*Register the driver in LVGL and save the created input device object*/
+    // Basic initialization
+    lv_indev_drv_init(&indev_drv);
+    indev_drv.type = LV_INDEV_TYPE_POINTER;
+    indev_drv.read_cb = evdev_read;
+    // Register the driver in LVGL and save the created input device object
     lv_indev_t *evdev_indev = lv_indev_drv_register(&indev_drv);
 
     // tplayer初始化
     install_sig_handler();
 
     std::string videoPath = argv[1];
-    
+
     mp.SetNewVideo(videoPath);
 
     // 创建画布
@@ -153,7 +144,7 @@ int main(int argc, char *argv[])
 
     lv_obj_add_event_cb(btn, button_event_handler, LV_EVENT_ALL, NULL);
 
-    /*Handle LitlevGL tasks (tickless mode)*/
+    /* Handle LitlevGL tasks (tickless mode) */
     while (1)
     {
         lv_task_handler();
@@ -163,7 +154,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-/*Set in lv_conf.h as `LV_TICK_CUSTOM_SYS_TIME_EXPR`*/
+/* Set in lv_conf.h as `LV_TICK_CUSTOM_SYS_TIME_EXPR` */
 uint32_t custom_tick_get(void)
 {
     static uint64_t start_ms = 0;
@@ -248,7 +239,6 @@ static void button_event_handler(lv_event_t *e)
             lv_style_set_bg_opa(&style_scr_act, LV_OPA_TRANSP);
             lv_obj_report_style_change(&style_scr_act);
 
-            // TPlayerStart(mTPlayer);
             mp.Start();
         }
         else
@@ -261,9 +251,7 @@ static void button_event_handler(lv_event_t *e)
             lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
             lv_obj_report_style_change(&style_scr_act);
 
-            // TPlayerPause(mTPlayer);
             mp.Pause();
-
         }
     }
 }
