@@ -5,3 +5,5 @@ make -j4
 mkdir -p build
 
 mv *.o build/
+
+mv ./src/*.o build/

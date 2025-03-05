@@ -32,7 +32,7 @@ LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++
 
 # Collect the files to compile
 CXXSRCS += ./src/mediaPlayer.cpp
-MAINSRC += ./main.cpp
+MAINSRC += ./src/main.cpp
 
 include $(LVGL_DIR)/lvgl/lvgl.mk
 include $(LVGL_DIR)/lv_drivers/lv_drivers.mk
