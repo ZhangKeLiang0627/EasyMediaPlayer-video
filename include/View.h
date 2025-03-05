@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../libs/lvgl/lvgl.h"
+#include "lv_obj_ext_func.h"
+#include "lv_anim_timeline_wrapper.h"
 #include <functional>
 
 namespace Page
@@ -48,6 +50,7 @@ namespace Page
         void create(Operations &opts);
         void release(void);
         void appearAnimStart(bool reverse = false);
+        void appearAnimClick(bool reverse = false);
         void addVideoList(const char *name);
         void setPlayProgress(int cur, int total);
 
@@ -55,6 +58,7 @@ namespace Page
         static void onEvent(lv_event_t *event);
         static void buttonEventHandler(lv_event_t *event);
 
+        lv_obj_t *roundRectCreate(lv_obj_t *par, lv_coord_t x_ofs, lv_coord_t y_ofs);
         lv_obj_t *btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs);
     };
 

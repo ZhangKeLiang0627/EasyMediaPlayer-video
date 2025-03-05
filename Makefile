@@ -32,9 +32,9 @@ LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++
 # Collect the files to compile
 # CXXSRCS += ./src/mediaPlayer.cpp
 # CXXSRCS += ./src/hal/hal.cpp
-# CSRCS += $(shell find -L $(PROJECT_DIR)/src -name "*.c")
 
 MAINSRC += ./main.cpp
+CSRCS += $(shell find -L $(PROJECT_DIR)/src -name "*.c")
 CXXSRCS += $(shell find -L $(PROJECT_DIR)/src -name "*.cpp")
 
 include $(LVGL_DIR)/lvgl/lvgl.mk
