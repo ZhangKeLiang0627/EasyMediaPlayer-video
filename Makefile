@@ -23,7 +23,6 @@ CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include/al
 CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include/allwinner/include 
 CFLAGS += -I$(LVGL_DIR)/include
 
-
 CFLAGS += -pipe -march=armv7-a -mtune=cortex-a7 -mfpu=neon -mfloat-abi=hard -fstack-protector  
 
 LDFLAGS += -L/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/lib
@@ -32,6 +31,7 @@ LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++
 
 # Collect the files to compile
 CXXSRCS += ./src/mediaPlayer.cpp
+CXXSRCS += ./src/hal/hal.cpp
 MAINSRC += ./src/main.cpp
 
 include $(LVGL_DIR)/lvgl/lvgl.mk

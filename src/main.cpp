@@ -1,4 +1,3 @@
-
 #include "../include/common_inc.h"
 
 MediaPlayer mp;
@@ -9,74 +8,26 @@ lv_obj_t *Btn_Create(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs);
 static void button_event_handler(lv_event_t *e);
 
 int main(int argc, char *argv[])
-{
+{   
+    // 请输入需要播放的文件名称
     printf("[Sys] EasyMediaPlayer begin!\n");
-
     if (argc == 1)
     {
         printf("[Sys] Please input file name!\n");
         return -1;
     }
-
-    // clear fb0
+    // 清除fb0
     system("dd if=/dev/zero of=/dev/fb0");
-
+    
+    // 打开音频通路并设置音量
     system("amixer sset Headphone unmute");
     system("amixer sset \"Headphone volume\" 2");
 
-    // LittlevGL init
-    lv_init();
-    uint32_t rotated = LV_DISP_ROT_NONE;
-
-    // Linux frame buffer device init
-    sunxifb_init(rotated);
-
-    // A buffer for LittlevGL to draw the screen's content
-    static uint32_t width, height;
-    sunxifb_get_sizes(&width, &height);
-
-    static lv_color_t *buf;
-    buf = (lv_color_t *)sunxifb_alloc(width * height * sizeof(lv_color_t), (char *)"lv_examples");
-
-    if (buf == NULL)
-    {
-        sunxifb_exit();
-        printf("malloc draw buffer fail\n");
-        return 0;
-    }
-
-    // Initialize a descriptor for the buffer
-    static lv_disp_draw_buf_t disp_buf;
-    lv_disp_draw_buf_init(&disp_buf, buf, NULL, width * height);
-
-    // Initialize and register a display driver
-    static lv_disp_drv_t disp_drv;
-    lv_disp_drv_init(&disp_drv);
-    disp_drv.draw_buf = &disp_buf;
-    disp_drv.flush_cb = sunxifb_flush;
-    disp_drv.hor_res = width;
-    disp_drv.ver_res = height;
-    disp_drv.rotated = rotated;
-#ifndef USE_SUNXIFB_G2D_ROTATE
-    if (rotated != LV_DISP_ROT_NONE)
-        disp_drv.sw_rotate = 1;
-#endif
-    lv_disp_drv_register(&disp_drv);
-
-    evdev_init();
-    static lv_indev_drv_t indev_drv;
-    // Basic initialization
-    lv_indev_drv_init(&indev_drv);
-    indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb = evdev_read;
-    // Register the driver in LVGL and save the created input device object
-    lv_indev_t *evdev_indev = lv_indev_drv_register(&indev_drv);
+    // Init HAL
+    HAL::Init();
 
     // tplayer初始化
-    install_sig_handler();
-
     std::string videoPath = argv[1];
-
     mp.SetNewVideo(videoPath);
 
     // 创建画布
