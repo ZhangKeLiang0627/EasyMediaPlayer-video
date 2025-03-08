@@ -4,7 +4,8 @@
 CC = /home/hugokkl/tina-sdk/prebuilt/gcc/linux-x86/arm/toolchain-sunxi-musl/toolchain/bin/arm-openwrt-linux-gcc
 CXX = /home/hugokkl/tina-sdk/prebuilt/gcc/linux-x86/arm/toolchain-sunxi-musl/toolchain/bin/arm-openwrt-linux-g++
 
-BIN = easyMediaPlayer
+# BIN = easyMediaPlayer
+BIN = eMP_video
 
 LVGL_DIR_NAME ?= lvgl
 LVGL_DIR ?= ./libs
@@ -51,6 +52,8 @@ SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS) $(CXXOBJS) $(MAINOBJ)
 
 ## MAINOBJ -> OBJFILES
+
+.PHONY: clean all
 
 all: default
 
