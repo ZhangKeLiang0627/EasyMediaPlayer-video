@@ -31,6 +31,8 @@ void View::create(Operations &opts)
     lv_obj_add_event_cb(btn, buttonEventHandler, LV_EVENT_ALL, this);
     ui.btnCont.btn = btn;
 
+    AttachEvent(lv_scr_act());
+
     /* Render octagon explode */
     lv_obj_t *roundRect_1 = roundRectCreate(btnCont, 0, -20);
     lv_obj_t *roundRect_2 = roundRectCreate(btnCont, 0, -20);
@@ -121,6 +123,8 @@ void View::release()
         lv_anim_timeline_del(ui.anim_timelineClick);
         ui.anim_timelineClick = nullptr;
     }
+    // 移除屏幕手势回调函数
+    lv_obj_remove_event_cb(lv_scr_act(), onEvent);
 }
 
 void View::appearAnimStart(bool reverse) // 开始开场动画
@@ -133,6 +137,11 @@ void View::appearAnimClick(bool reverse) // 按钮动画
 {
     lv_anim_timeline_set_reverse(ui.anim_timelineClick, reverse);
     lv_anim_timeline_start(ui.anim_timelineClick);
+}
+
+void View::AttachEvent(lv_obj_t *obj)
+{
+    lv_obj_add_event_cb(obj, onEvent, LV_EVENT_ALL, this);
 }
 
 lv_obj_t *View::btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs)
@@ -257,6 +266,41 @@ void View::buttonEventHandler(lv_event_t *event)
 
             if (instance->_opts.pauseCb != nullptr)
                 instance->_opts.pauseCb(); // 暂停播放
+        }
+    }
+}
+
+void View::onEvent(lv_event_t *event)
+{
+    View *instance = (View *)lv_event_get_user_data(event);
+    LV_ASSERT_NULL(instance);
+
+    lv_obj_t *obj = lv_event_get_current_target(event);
+    lv_event_code_t code = lv_event_get_code(event);
+
+    if (code == LV_EVENT_GESTURE)
+    {
+        switch (lv_indev_get_gesture_dir(lv_indev_get_act()))
+        {
+        case LV_DIR_LEFT:
+            printf("[View] LV_DIR_LEFT!\n");
+
+            break;
+        case LV_DIR_RIGHT:
+            printf("[View] LV_DIR_RIGHT!\n");
+
+            break;
+        case LV_DIR_TOP:
+            printf("[View] LV_DIR_TOP!\n");
+
+            break;
+        case LV_DIR_BOTTOM:
+            printf("[View] LV_DIR_BOTTOM!\n");
+            instance->_opts.exitCb();
+            break;
+
+        default:
+            break;
         }
     }
 }

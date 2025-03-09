@@ -55,6 +55,8 @@ namespace Page
         void setPlayProgress(int cur, int total);
 
     private:
+        void AttachEvent(lv_obj_t *obj);
+
         static void onEvent(lv_event_t *event);
         static void buttonEventHandler(lv_event_t *event);
 

@@ -107,7 +107,8 @@ int Model::searchVideo(std::string path)
 void *Model::threadProcHandler(void *arg)
 {
     Model *model = static_cast<Model *>(arg); // 将arg转换为Model指针
-    usleep(50000);
+   
+    // usleep(50000);
 
     model->_mp = new MediaPlayer(); // 创建播放器
     std::string url = "/mnt/UDISK/video1.mp4";
