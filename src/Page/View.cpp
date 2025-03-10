@@ -7,16 +7,19 @@ void View::create(Operations &opts)
     // 获取View回调函数集
     _opts = opts;
 
-    // 画布的创建
+    // 总画布的创建
     lv_obj_t *cont = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(cont);
     lv_obj_set_size(cont, LV_HOR_RES, LV_VER_RES);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_bg_opa(cont, LV_OPA_TRANSP, 0);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0xcccccc), 0);
+    lv_obj_set_style_bg_img_src(cont, "S:./res/icon/main1.bin", 0);
+    lv_obj_set_style_bg_img_opa(cont, LV_OPA_COVER, 0);
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
     ui.cont = cont;
 
+    // 按钮画布的创建
     lv_obj_t *btnCont = lv_obj_create(cont);
     lv_obj_remove_style_all(btnCont);
     lv_obj_set_size(btnCont, lv_pct(70), LV_VER_RES / 4);
@@ -31,6 +34,7 @@ void View::create(Operations &opts)
     lv_obj_add_event_cb(btn, buttonEventHandler, LV_EVENT_ALL, this);
     ui.btnCont.btn = btn;
 
+    // 为当前屏幕添加事件回调函数
     AttachEvent(lv_scr_act());
 
     /* Render octagon explode */
@@ -155,12 +159,12 @@ lv_obj_t *View::btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs)
     lv_obj_set_style_bg_img_src(obj, img_src, 0);
 
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
-    lv_obj_set_style_width(obj, 75, LV_STATE_PRESSED); // 设置button按下时的长宽
-    lv_obj_set_style_height(obj, 25, LV_STATE_PRESSED);
+    lv_obj_set_style_width(obj, 75, LV_STATE_PRESSED);                         // 设置button按下时的宽
+    lv_obj_set_style_height(obj, 25, LV_STATE_PRESSED);                        // 设置button按下时的长
     lv_obj_set_style_bg_color(obj, lv_color_hex(0x356b8c), 0);                 // 设置按钮默认的颜色
     lv_obj_set_style_bg_color(obj, lv_color_hex(0x242947), LV_STATE_PRESSED);  // 设置按钮在被按下时的颜色
     lv_obj_set_style_bg_color(obj, lv_color_hex(0xf2daaa), LV_STATE_FOCUSED);  // 设置按钮在被聚焦时的颜色
-    lv_obj_set_style_bg_color(obj, lv_color_hex(0xa99991), LV_STATE_DISABLED); // 设置按钮在被聚焦时的颜色
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0xa99991), LV_STATE_DISABLED); // 设置按钮失能时的颜色
     lv_obj_set_style_radius(obj, 9, 0);                                        // 按钮画圆角
 
     static lv_style_transition_dsc_t tran;
@@ -243,6 +247,8 @@ void View::buttonEventHandler(lv_event_t *event)
             instance->_isPlaying = true;
             lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PAUSE, 0);
 
+            lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_TRANSP, 0);
+
             lv_disp_get_default()->driver->screen_transp = 1;
             lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_TRANSP);
             /* Empty the buffer, not emptying will cause the UI to be opaque */
@@ -258,6 +264,8 @@ void View::buttonEventHandler(lv_event_t *event)
         {
             instance->_isPlaying = false;
             lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PLAY, 0);
+
+            lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
 
             lv_disp_get_default()->driver->screen_transp = 0;
             lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
