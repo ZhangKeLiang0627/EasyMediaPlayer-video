@@ -74,9 +74,9 @@ void HAL::LVGL_Proc(void)
     for (;;)
     {
         pthread_mutex_lock(&lv_mutex);
-        lv_task_handler();
+        uint32_t ms = lv_task_handler();
         pthread_mutex_unlock(&lv_mutex);
-        usleep(5000);
+        usleep(ms * 1000);
     }
 }
 
