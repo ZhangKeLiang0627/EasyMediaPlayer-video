@@ -19,16 +19,23 @@ namespace Page
         bool _threadExitFlag;    // 线程退出标志位
         pthread_mutex_t *_mutex; // 互斥量
         View _view;              // View的实例
+        lv_timer_t *_timer;      // LVGL软定时器
 
     private:
         static void *threadProcHandler(void *);
+        void update(void);
+        static void onTimerUpdate(lv_timer_t *timer);
+
         int searchVideo(std::string path);
 
+        // funtion for View
         bool getState(void);
         int getVolume(void);
         void pause(void);
         void play(const char *name = NULL);
         void setCur(int cur);
+        int getCur(void);
+        int getDuration(void);
         void setVolume(int volume);
 
     public:

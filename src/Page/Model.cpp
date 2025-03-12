@@ -23,13 +23,21 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
 
     uiOpts.exitCb = exitCb;
     uiOpts.getStateCb = std::bind(&Model::getState, this);
-    uiOpts.getVolumeCb = std::bind(&Model::getVolume, this);
     uiOpts.pauseCb = std::bind(&Model::pause, this);
     uiOpts.playCb = std::bind(&Model::play, this, std::placeholders::_1);
     uiOpts.setCurCb = std::bind(&Model::setCur, this, std::placeholders::_1);
+    uiOpts.getCurCb = std::bind(&Model::getCur, this);
     uiOpts.setVolumeCb = std::bind(&Model::setVolume, this, std::placeholders::_1);
+    uiOpts.getVolumeCb = std::bind(&Model::getVolume, this);
+    uiOpts.getDurationCb = std::bind(&Model::getDuration, this);
+
+    _mp = new MediaPlayer(); // 创建播放器
+    std::string url = "/mnt/UDISK/video1.mp4";
+    _mp->SetNewVideo(url);
 
     _view.create(uiOpts);
+
+    _timer = lv_timer_create(onTimerUpdate, 1000, this); // 这里设置一个1s的定时器，软定时器，用于在onTimerUpdate里update
 
     pthread_create(&_pthread, NULL, threadProcHandler, this); // 创建执行线程，传递this指针
 }
@@ -38,7 +46,29 @@ Model::~Model()
 {
     _threadExitFlag = true;
 
+    lv_timer_del(_timer);
+
     _view.release();
+}
+
+/**
+ * @brief 定时器更新函数
+ *
+ */
+void Model::onTimerUpdate(lv_timer_t *timer)
+{
+    Model *instance = (Model *)timer->user_data;
+
+    instance->update();
+}
+
+/**
+ * @brief 更新UI等事务
+ *
+ */
+void Model::update(void)
+{
+    lv_slider_set_value(_view.ui.sliderCont.slider, getCur() / 1000, LV_ANIM_ON);
 }
 
 /**
@@ -107,12 +137,12 @@ int Model::searchVideo(std::string path)
 void *Model::threadProcHandler(void *arg)
 {
     Model *model = static_cast<Model *>(arg); // 将arg转换为Model指针
-   
-    // usleep(50000);
 
-    model->_mp = new MediaPlayer(); // 创建播放器
-    std::string url = "/mnt/UDISK/video1.mp4";
-    model->_mp->SetNewVideo(url);
+    usleep(50000);
+
+    // model->_mp = new MediaPlayer(); // 创建播放器
+    // std::string url = "/mnt/UDISK/video1.mp4";
+    // model->_mp->SetNewVideo(url);
 
     while (!model->_threadExitFlag)
     {
@@ -188,6 +218,28 @@ void Model::setCur(int cur)
 {
     if (_mp != nullptr)
         _mp->SetCurrentPos(cur * 1000);
+}
+
+/**
+ * @brief UI获取播放时间点回调函数
+ */
+int Model::getCur(void)
+{
+    if (_mp != nullptr)
+        return _mp->GetCurrentPos(); // 返回单位为ms
+    else
+        return 0;
+}
+
+/**
+ * @brief UI获取播放时间点回调函数
+ */
+int Model::getDuration(void)
+{
+    if (_mp != nullptr)
+        return _mp->GetDuration(); // 返回单位为ms
+    else
+        return 3000; // 否则返回3000ms，不要为0，不然进度条会出现问题
 }
 
 /**

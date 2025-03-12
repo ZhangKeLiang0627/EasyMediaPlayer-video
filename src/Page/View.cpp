@@ -8,44 +8,18 @@ void View::create(Operations &opts)
     _opts = opts;
 
     // 总画布的创建
-    lv_obj_t *cont = lv_obj_create(lv_scr_act());
-    lv_obj_remove_style_all(cont);
-    lv_obj_set_size(cont, LV_HOR_RES, LV_VER_RES);
-    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_bg_opa(cont, LV_OPA_TRANSP, 0);
-    lv_obj_set_style_bg_color(cont, lv_color_hex(0xcccccc), 0);
-    lv_obj_set_style_bg_img_src(cont, "S:./res/icon/main1.bin", 0);
-    lv_obj_set_style_bg_img_opa(cont, LV_OPA_COVER, 0);
-    lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
-    ui.cont = cont;
+    contCreate(lv_scr_act());
 
     // 按钮画布的创建
-    lv_obj_t *btnCont = lv_obj_create(cont);
-    lv_obj_remove_style_all(btnCont);
-    lv_obj_set_size(btnCont, lv_pct(70), LV_VER_RES / 4);
-    lv_obj_clear_flag(btnCont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_bg_opa(btnCont, LV_OPA_COVER, 0);
-    lv_obj_set_style_bg_color(btnCont, lv_color_hex(0x6a8d6d), 0);
-    lv_obj_align(btnCont, LV_ALIGN_BOTTOM_MID, 0, 42);
-    lv_obj_set_style_radius(btnCont, 16, LV_PART_MAIN);
-    ui.btnCont.cont = btnCont;
+    btnContCreate(ui.cont);
 
-    lv_obj_t *btn = btnCreate(btnCont, LV_SYMBOL_PLAY, -20);
-    lv_obj_add_event_cb(btn, buttonEventHandler, LV_EVENT_ALL, this);
-    ui.btnCont.btn = btn;
+    sliderContCreate(ui.cont);
 
     // 为当前屏幕添加事件回调函数
     AttachEvent(lv_scr_act());
 
-    /* Render octagon explode */
-    lv_obj_t *roundRect_1 = roundRectCreate(btnCont, 0, -20);
-    lv_obj_t *roundRect_2 = roundRectCreate(btnCont, 0, -20);
-    lv_obj_t *roundRect_3 = roundRectCreate(btnCont, 0, -20);
-    lv_obj_t *roundRect_4 = roundRectCreate(btnCont, 0, -20);
-    lv_obj_t *roundRect_5 = roundRectCreate(btnCont, 0, -20);
-    lv_obj_t *roundRect_6 = roundRectCreate(btnCont, 0, -20);
-    lv_obj_t *roundRect_7 = roundRectCreate(btnCont, 0, -20);
-    lv_obj_t *roundRect_8 = roundRectCreate(btnCont, 0, -20);
+    // 为进度条添加事件回调函数
+    lv_obj_add_event_cb(ui.sliderCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
 
     // 动画的创建
     ui.anim_timeline = lv_anim_timeline_create();
@@ -111,8 +85,8 @@ void View::create(Operations &opts)
         };
     lv_anim_timeline_add_wrapper(ui.anim_timelineClick, wrapperForClick);
 
+    // 开始动画
     appearAnimStart();
-    appearAnimClick();
 }
 
 void View::release()
@@ -146,6 +120,108 @@ void View::appearAnimClick(bool reverse) // 按钮动画
 void View::AttachEvent(lv_obj_t *obj)
 {
     lv_obj_add_event_cb(obj, onEvent, LV_EVENT_ALL, this);
+}
+
+// 总画布的创建
+void View::contCreate(lv_obj_t *obj)
+{
+    lv_obj_t *cont = lv_obj_create(obj);
+    lv_obj_remove_style_all(cont);
+    lv_obj_set_size(cont, LV_HOR_RES, LV_VER_RES);
+    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_opa(cont, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_bg_color(cont, lv_color_hex(0xcccccc), 0);
+    lv_obj_set_style_bg_img_src(cont, "S:./res/icon/main1.bin", 0);
+    lv_obj_set_style_bg_img_opa(cont, LV_OPA_COVER, 0);
+    lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
+    ui.cont = cont;
+}
+
+// 按钮画布的创建
+void View::btnContCreate(lv_obj_t *obj)
+{
+    lv_obj_t *btnCont = lv_obj_create(obj);
+    lv_obj_remove_style_all(btnCont);
+    lv_obj_set_size(btnCont, lv_pct(70), LV_VER_RES / 4);
+    lv_obj_clear_flag(btnCont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_opa(btnCont, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(btnCont, lv_color_hex(0x6a8d6d), 0);
+    lv_obj_align(btnCont, LV_ALIGN_BOTTOM_MID, 0, 42);
+    lv_obj_set_style_radius(btnCont, 16, LV_PART_MAIN);
+    ui.btnCont.cont = btnCont;
+
+    lv_obj_t *btn = btnCreate(btnCont, LV_SYMBOL_PLAY, -20);
+    lv_obj_add_event_cb(btn, buttonEventHandler, LV_EVENT_ALL, this);
+    ui.btnCont.btn = btn;
+
+    /* Render octagon explode */
+    lv_obj_t *roundRect_1 = roundRectCreate(btnCont, 0, -20);
+    lv_obj_t *roundRect_2 = roundRectCreate(btnCont, 0, -20);
+    lv_obj_t *roundRect_3 = roundRectCreate(btnCont, 0, -20);
+    lv_obj_t *roundRect_4 = roundRectCreate(btnCont, 0, -20);
+    lv_obj_t *roundRect_5 = roundRectCreate(btnCont, 0, -20);
+    lv_obj_t *roundRect_6 = roundRectCreate(btnCont, 0, -20);
+    lv_obj_t *roundRect_7 = roundRectCreate(btnCont, 0, -20);
+    lv_obj_t *roundRect_8 = roundRectCreate(btnCont, 0, -20);
+}
+
+void View::sliderContCreate(lv_obj_t *obj)
+{
+    lv_obj_t *sliderCont = lv_obj_create(obj);
+    lv_obj_remove_style_all(sliderCont);
+    lv_obj_set_size(sliderCont, lv_pct(90), LV_VER_RES / 4);
+    lv_obj_clear_flag(sliderCont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_opa(sliderCont, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(sliderCont, lv_color_hex(0x6a8d6d), 0);
+    lv_obj_align(sliderCont, LV_ALIGN_TOP_MID, 0, -42);
+    lv_obj_set_style_radius(sliderCont, 16, LV_PART_MAIN);
+
+    ui.sliderCont.cont = sliderCont;
+
+    // ui.sliderCont.slider = sliderCreate(sliderCont, nullptr, 0, 20);
+    ui.sliderCont.slider = sliderCreate(sliderCont, nullptr, 0, 20, 0, _opts.getDurationCb() / 1000, 0);
+
+    printf("[View] Get Duration: %d\n", _opts.getDurationCb() / 1000);
+}
+
+lv_obj_t *View::sliderCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs, lv_coord_t y_ofs, int32_t min, int32_t max, int32_t val)
+{
+    lv_obj_t *obj = lv_slider_create(par);
+    lv_obj_remove_style_all(obj);
+    lv_slider_set_mode(obj, LV_SLIDER_MODE_NORMAL);
+    lv_slider_set_range(obj, min, max);
+    lv_slider_set_value(obj, val, LV_ANIM_OFF);
+
+    lv_obj_set_size(obj, lv_pct(85), lv_pct(20));
+
+    lv_obj_set_style_border_width(obj, 4, LV_PART_KNOB);
+    lv_obj_set_style_border_color(obj, lv_color_hex(0xbbbbbb), LV_PART_KNOB);
+    lv_obj_set_style_pad_all(obj, 6, LV_PART_KNOB);
+    lv_obj_set_style_radius(obj, 10, LV_PART_KNOB);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_60, LV_PART_KNOB | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x445588), LV_PART_KNOB);
+
+    lv_obj_set_style_radius(obj, 5, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x3c9ba6), LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_MAIN);
+
+    lv_obj_set_style_radius(obj, 8, LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0xa4d9b2), LV_PART_INDICATOR);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_INDICATOR);
+    lv_obj_align(obj, LV_ALIGN_CENTER, x_ofs, y_ofs);
+
+    if (img_src != nullptr)
+    {
+        lv_obj_t *img = lv_img_create(obj);
+        lv_obj_align(img, LV_ALIGN_LEFT_MID, 10, 0);
+        lv_img_set_src(img, img_src);
+        // lv_obj_set_style_img_opa(img, LV_OPA_50, LV_PART_MAIN);
+        // lv_obj_set_style_img_recolor_opa(img, LV_OPA_COVER, LV_PART_MAIN);
+        // lv_obj_set_style_img_recolor(img, lv_color_white(), LV_PART_MAIN);
+    }
+
+    return obj;
 }
 
 lv_obj_t *View::btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs)
@@ -274,6 +350,30 @@ void View::buttonEventHandler(lv_event_t *event)
 
             if (instance->_opts.pauseCb != nullptr)
                 instance->_opts.pauseCb(); // 暂停播放
+        }
+    }
+}
+
+void View::sliderEventHandler(lv_event_t *event)
+{
+    View *instance = (View *)lv_event_get_user_data(event);
+    LV_ASSERT_NULL(instance);
+
+    lv_obj_t *obj = lv_event_get_current_target(event);
+    lv_event_code_t code = lv_event_get_code(event);
+
+    if (code == LV_EVENT_VALUE_CHANGED)
+    {
+        // lv_indev_wait_release(lv_indev_get_act());
+    }
+    if (code == LV_EVENT_RELEASED)
+    {
+        int cur = lv_slider_get_value(obj);
+        printf("[View] Get slider value: %d\n", cur);
+
+        if (instance->_opts.setCurCb != nullptr)
+        {
+            instance->_opts.setCurCb(cur);
         }
     }
 }
