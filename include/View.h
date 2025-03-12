@@ -53,6 +53,12 @@ namespace Page
                 lv_obj_t *slider;
             } sliderCont;
 
+            struct
+            {
+                lv_obj_t *cont;
+                // lv_obj_t *list;
+            } listCont;
+
             lv_anim_timeline_t *anim_timeline;
             lv_anim_timeline_t *anim_timelineClick;
         } ui;
@@ -61,7 +67,7 @@ namespace Page
         void release(void);
         void appearAnimStart(bool reverse = false);
         void appearAnimClick(bool reverse = false);
-        void addVideoList(const char *name);
+        void addVideoList(const char *name, const void *img_src);
         void setPlayProgress(int cur, int total);
 
     private:
@@ -70,14 +76,17 @@ namespace Page
         void contCreate(lv_obj_t *obj);
         void btnContCreate(lv_obj_t *obj);
         void sliderContCreate(lv_obj_t *obj);
+        void listContCreate(lv_obj_t *obj);
 
         static void onEvent(lv_event_t *event);
         static void buttonEventHandler(lv_event_t *event);
+        static void listBtnEventHandler(lv_event_t *event);
         static void sliderEventHandler(lv_event_t *event);
 
         lv_obj_t *roundRectCreate(lv_obj_t *par, lv_coord_t x_ofs, lv_coord_t y_ofs);
         lv_obj_t *btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs);
         lv_obj_t *sliderCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs = 0, lv_coord_t y_ofs = 0, int32_t min = 0, int32_t max = 255, int32_t val = 0);
+        lv_obj_t *listCreate(const char *name, const void *img_src);
     };
 
 }

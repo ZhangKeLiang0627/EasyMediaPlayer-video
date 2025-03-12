@@ -10,9 +10,13 @@ void View::create(Operations &opts)
     // 总画布的创建
     contCreate(lv_scr_act());
 
+    // 播放列表画布的创建
+    listContCreate(ui.cont);
+
     // 按钮画布的创建
     btnContCreate(ui.cont);
 
+    // 进度条画布的创建
     sliderContCreate(ui.cont);
 
     // 为当前屏幕添加事件回调函数
@@ -103,6 +107,17 @@ void View::release()
     }
     // 移除屏幕手势回调函数
     lv_obj_remove_event_cb(lv_scr_act(), onEvent);
+
+    // 释放内存
+    lv_obj_t *listBtn = nullptr;
+    while ((listBtn = lv_obj_get_child(ui.listCont.cont, -1)) != nullptr)
+    {
+        char *video_name = (char *)lv_obj_get_user_data(listBtn);
+        if (video_name != nullptr)
+            delete[] video_name;
+
+        lv_obj_del(listBtn);
+    }
 }
 
 void View::appearAnimStart(bool reverse) // 开始开场动画
@@ -178,10 +193,28 @@ void View::sliderContCreate(lv_obj_t *obj)
 
     ui.sliderCont.cont = sliderCont;
 
-    // ui.sliderCont.slider = sliderCreate(sliderCont, nullptr, 0, 20);
-    ui.sliderCont.slider = sliderCreate(sliderCont, nullptr, 0, 20, 0, _opts.getDurationCb() / 1000, 0);
+    ui.sliderCont.slider = sliderCreate(sliderCont, nullptr, 0, 20);
 
-    printf("[View] Get Duration: %d\n", _opts.getDurationCb() / 1000);
+}
+
+void View::listContCreate(lv_obj_t *obj)
+{
+    lv_obj_t *listCont = lv_list_create(obj);
+    lv_obj_remove_style_all(listCont);
+    lv_obj_set_size(listCont, lv_pct(80), lv_pct(50));
+    // lv_obj_clear_flag(listCont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_opa(listCont, LV_OPA_60, 0);
+    lv_obj_set_style_bg_color(listCont, lv_color_hex(0x6a8d6d), 0);
+    lv_obj_align(listCont, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(listCont, 16, LV_PART_MAIN);
+
+    lv_obj_set_style_pad_row(listCont, 20, LV_PART_MAIN);
+    lv_obj_set_flex_flow(listCont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(listCont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_scroll_dir(listCont, LV_DIR_VER);
+    lv_obj_set_scroll_snap_y(listCont, LV_SCROLL_SNAP_CENTER);
+
+    ui.listCont.cont = listCont;
 }
 
 lv_obj_t *View::sliderCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs, lv_coord_t y_ofs, int32_t min, int32_t max, int32_t val)
@@ -260,6 +293,32 @@ lv_obj_t *View::btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs)
     return obj;
 }
 
+lv_obj_t *View::listCreate(const char *name, const void *img_src)
+{
+    // lv_obj_t *obj = lv_list_add_btn(ui.listCont.cont, img_src, name);
+    // lv_obj_t *obj = lv_list_add_btn(ui.listCont.cont, LV_SYMBOL_PLAY, name);
+
+    lv_obj_t *obj = lv_obj_class_create_obj(&lv_list_btn_class, ui.listCont.cont);
+    lv_obj_class_init_obj(obj);
+    lv_obj_set_size(obj, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW);
+
+    lv_obj_t *img = lv_img_create(obj);
+    lv_img_set_src(img, LV_SYMBOL_PLAY);
+
+    lv_obj_t *label = lv_label_create(obj);
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
+    lv_label_set_text(label, name);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_flex_grow(label, 1);
+
+    lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_STATE_DEFAULT); // 设置背景透明
+    lv_obj_set_style_bg_opa(obj, LV_OPA_30, LV_STATE_PRESSED);     // 设置背景透明度(按下时)
+    lv_obj_set_style_text_color(obj, lv_color_hex(0x282a3a), LV_STATE_DEFAULT);
+
+    return obj;
+}
+
 lv_obj_t *View::roundRectCreate(lv_obj_t *par, lv_coord_t x_ofs, lv_coord_t y_ofs)
 {
     /* Render octagon explode */
@@ -283,11 +342,23 @@ lv_obj_t *View::roundRectCreate(lv_obj_t *par, lv_coord_t x_ofs, lv_coord_t y_of
 }
 
 /**
- *@brief 添加一个视频到列表
- *@param name 视频文件名称
+ * @brief 添加一个视频到列表
+ * @param name 视频文件名称
+ * @param img_src 视频文件封面
  */
-void View::addVideoList(const char *name)
+void View::addVideoList(const char *name, const void *img_src)
 {
+    lv_obj_t *obj = listCreate(name, img_src);
+
+    int len = strlen(name) + 1;
+    char *video_name = new char[len];
+    strcpy(video_name, name);
+
+    lv_obj_set_user_data(obj, video_name);
+
+    printf("[View] videoName:%s\n", video_name);
+
+    lv_obj_add_event_cb(obj, listBtnEventHandler, LV_EVENT_SHORT_CLICKED, this);
 }
 
 /**
@@ -324,6 +395,7 @@ void View::buttonEventHandler(lv_event_t *event)
             lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PAUSE, 0);
 
             lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_TRANSP, 0);
+            lv_obj_add_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
 
             lv_disp_get_default()->driver->screen_transp = 1;
             lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_TRANSP);
@@ -342,6 +414,7 @@ void View::buttonEventHandler(lv_event_t *event)
             lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PLAY, 0);
 
             lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
+            lv_obj_clear_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
 
             lv_disp_get_default()->driver->screen_transp = 0;
             lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
@@ -374,6 +447,50 @@ void View::sliderEventHandler(lv_event_t *event)
         if (instance->_opts.setCurCb != nullptr)
         {
             instance->_opts.setCurCb(cur);
+        }
+    }
+}
+
+void View::listBtnEventHandler(lv_event_t *event)
+{
+    View *instance = (View *)lv_event_get_user_data(event);
+    LV_ASSERT_NULL(instance);
+
+    lv_event_code_t code = lv_event_get_code(event);
+    lv_obj_t *obj = lv_event_get_current_target(event);
+    const char *videoName = (const char *)lv_obj_get_user_data(obj);
+
+    printf("[View] Cb videoName:%s\n", videoName);
+
+    /* Transparent background style */
+    static lv_style_t style_scr_act;
+    if (style_scr_act.prop_cnt == 0)
+    {
+        lv_style_init(&style_scr_act);
+        lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
+        lv_obj_add_style(lv_scr_act(), &style_scr_act, 0);
+    }
+
+    if (code == LV_EVENT_SHORT_CLICKED)
+    {
+        instance->_isPlaying = true;
+
+        lv_obj_set_style_bg_img_src(instance->ui.btnCont.btn, LV_SYMBOL_PAUSE, 0);
+        lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_TRANSP, 0);
+        lv_obj_add_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
+
+        lv_disp_get_default()
+            ->driver->screen_transp = 1;
+        lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_TRANSP);
+        /* Empty the buffer, not emptying will cause the UI to be opaque */
+        lv_memset_00(lv_disp_get_default()->driver->draw_buf->buf_act,
+                     lv_disp_get_default()->driver->draw_buf->size * sizeof(lv_color32_t));
+        lv_style_set_bg_opa(&style_scr_act, LV_OPA_TRANSP);
+        lv_obj_report_style_change(&style_scr_act);
+
+        if (instance->_opts.playCb != nullptr)
+        {
+            instance->_opts.playCb(videoName); // 新视频播放
         }
     }
 }

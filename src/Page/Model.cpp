@@ -31,13 +31,13 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
     uiOpts.getVolumeCb = std::bind(&Model::getVolume, this);
     uiOpts.getDurationCb = std::bind(&Model::getDuration, this);
 
-    _mp = new MediaPlayer(); // 创建播放器
-    std::string url = "/mnt/UDISK/video1.mp4";
-    _mp->SetNewVideo(url);
-
     _view.create(uiOpts);
 
-    _timer = lv_timer_create(onTimerUpdate, 1000, this); // 这里设置一个1s的定时器，软定时器，用于在onTimerUpdate里update
+    // _mp = new MediaPlayer(); // 创建播放器
+    // std::string url = "/mnt/UDISK/video1.mp4";
+    // _mp->SetNewVideo(url);
+
+    _timer = lv_timer_create(onTimerUpdate, 1000, this); // 这里设置一个1000ms的定时器，软定时器，用于在onTimerUpdate里update
 
     pthread_create(&_pthread, NULL, threadProcHandler, this); // 创建执行线程，传递this指针
 }
@@ -68,7 +68,8 @@ void Model::onTimerUpdate(lv_timer_t *timer)
  */
 void Model::update(void)
 {
-    lv_slider_set_value(_view.ui.sliderCont.slider, getCur() / 1000, LV_ANIM_ON);
+    lv_slider_set_value(_view.ui.sliderCont.slider, getCur() / 1000, LV_ANIM_OFF);
+    lv_slider_set_range(_view.ui.sliderCont.slider, 0, getDuration() / 1000);
 }
 
 /**
@@ -115,7 +116,7 @@ int Model::searchVideo(std::string path)
             legalVideo = false;
 
             pthread_mutex_lock(_mutex);
-            _view.addVideoList(ent->d_name);
+            _view.addVideoList(ent->d_name, nullptr);
             pthread_mutex_unlock(_mutex);
 
             cnt++;
@@ -137,21 +138,27 @@ int Model::searchVideo(std::string path)
 void *Model::threadProcHandler(void *arg)
 {
     Model *model = static_cast<Model *>(arg); // 将arg转换为Model指针
-
+    
     usleep(50000);
 
-    // model->_mp = new MediaPlayer(); // 创建播放器
+    model->_mp = new MediaPlayer(); // 创建播放器
     // std::string url = "/mnt/UDISK/video1.mp4";
     // model->_mp->SetNewVideo(url);
 
+    // pthread_mutex_lock(model->_mutex);
+    model->_view.addVideoList("video1.mp4", nullptr);
+    model->_view.addVideoList("video2.mp4", nullptr);
+    model->_view.addVideoList("video3.mp4", nullptr);
+    // pthread_mutex_unlock(model->_mutex);
+
     while (!model->_threadExitFlag)
     {
-        int cur = model->_mp->GetCurrentPos();
-        int total = model->_mp->GetDuration();
+        // int cur = model->_mp->GetCurrentPos();
+        // int total = model->_mp->GetDuration();
 
-        pthread_mutex_lock(model->_mutex);
-        model->_view.setPlayProgress(cur / 1000, total / 1000);
-        pthread_mutex_unlock(model->_mutex);
+        // pthread_mutex_lock(model->_mutex);
+        // model->_view.setPlayProgress(cur / 1000, total / 1000);
+        // pthread_mutex_unlock(model->_mutex);
 
         usleep(50000);
     }
