@@ -33,13 +33,10 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
 
     _view.create(uiOpts);
 
-    // _mp = new MediaPlayer(); // 创建播放器
-    // std::string url = "/mnt/UDISK/video1.mp4";
-    // _mp->SetNewVideo(url);
-
-    _timer = lv_timer_create(onTimerUpdate, 1000, this); // 这里设置一个1000ms的定时器，软定时器，用于在onTimerUpdate里update
-
-    pthread_create(&_pthread, NULL, threadProcHandler, this); // 创建执行线程，传递this指针
+    // 这里设置一个1000ms的定时器，软定时器，用于在onTimerUpdate里update
+    _timer = lv_timer_create(onTimerUpdate, 1000, this);
+    // 创建执行线程，传递this指针
+    pthread_create(&_pthread, NULL, threadProcHandler, this); 
 }
 
 Model::~Model()
@@ -68,6 +65,7 @@ void Model::onTimerUpdate(lv_timer_t *timer)
  */
 void Model::update(void)
 {
+    // 更新进度条
     lv_slider_set_value(_view.ui.sliderCont.slider, getCur() / 1000, LV_ANIM_OFF);
     lv_slider_set_range(_view.ui.sliderCont.slider, 0, getDuration() / 1000);
 }
@@ -79,22 +77,24 @@ void Model::update(void)
  */
 int Model::searchVideo(std::string path)
 {
-    int cnt = 0;
-    int i;
+    int count = 0;
     bool legalVideo = false;
     std::string filePath;
 
     struct dirent *ent;
     DIR *dir = opendir(path.c_str());
 
-    for (i = 0;; i++)
+    for (int i = 0;; i++)
     {
+        // readdir函数用于读取目录中的下一个条目
         ent = readdir(dir);
         if (ent == NULL)
             break;
 
         if (ent->d_type == DT_REG)
         {
+            // strrchr函数用于在ent->d_name中从后往前查找字符"."，返回指向该字符的指针
+            // 若未找到，返回NULL
             const char *pfile = strrchr(ent->d_name, '.');
             if (pfile != NULL)
             {
@@ -102,9 +102,10 @@ int Model::searchVideo(std::string path)
 
                 for (int j = 0; j < sizeof(fileType) / sizeof(fileType[0]); j++)
                 {
+                    // strcasecmp函数用于比较两个字符串，不区分大小写
                     if (strcasecmp(pfile, fileType[j]) == 0)
                     {
-                        printf("%s file\n", fileType[j]);
+                        printf("[Model] %s file\n", fileType[j]);
                         legalVideo = true;
                         break;
                     }
@@ -114,20 +115,14 @@ int Model::searchVideo(std::string path)
         if (legalVideo == true)
         {
             legalVideo = false;
-
-            pthread_mutex_lock(_mutex);
             _view.addVideoList(ent->d_name, nullptr);
-            pthread_mutex_unlock(_mutex);
-
-            cnt++;
+            count++;
         }
-
-        usleep(50000);
     }
 
     closedir(dir);
 
-    return cnt;
+    return count;
 }
 
 /**
@@ -138,21 +133,23 @@ int Model::searchVideo(std::string path)
 void *Model::threadProcHandler(void *arg)
 {
     Model *model = static_cast<Model *>(arg); // 将arg转换为Model指针
-    
-    usleep(50000);
 
     model->_mp = new MediaPlayer(); // 创建播放器
+    // 直接播放某视频
     // std::string url = "/mnt/UDISK/video1.mp4";
     // model->_mp->SetNewVideo(url);
 
-    // pthread_mutex_lock(model->_mutex);
-    model->_view.addVideoList("video1.mp4", nullptr);
-    model->_view.addVideoList("video2.mp4", nullptr);
-    model->_view.addVideoList("video3.mp4", nullptr);
-    // pthread_mutex_unlock(model->_mutex);
+    // 手动添加视频至播放列表
+    // model->_view.addVideoList("video1.mp4", nullptr);
+    // model->_view.addVideoList("video2.mp4", nullptr);
+    // model->_view.addVideoList("video3.mp4", nullptr);
+
+    // 搜索并添加视频至播放列表
+    model->searchVideo(VIDEO_DIR);
 
     while (!model->_threadExitFlag)
-    {
+    {   
+        // 获取当前视频的进度和总时长
         // int cur = model->_mp->GetCurrentPos();
         // int total = model->_mp->GetDuration();
 

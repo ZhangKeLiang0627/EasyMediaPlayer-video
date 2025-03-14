@@ -207,8 +207,8 @@ void View::listContCreate(lv_obj_t *obj)
     lv_obj_set_style_bg_color(listCont, lv_color_hex(0x6a8d6d), 0);
     lv_obj_align(listCont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(listCont, 16, LV_PART_MAIN);
-
     lv_obj_set_style_pad_row(listCont, 20, LV_PART_MAIN);
+
     lv_obj_set_flex_flow(listCont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(listCont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_scroll_dir(listCont, LV_DIR_VER);
