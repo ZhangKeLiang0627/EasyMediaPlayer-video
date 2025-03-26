@@ -2,6 +2,11 @@
 
 # eMP_video
 
+## Snapshots
+
+![](./pictures/image-1.jpg)
+![](./pictures/image-2.jpg)
+
 ## 环境
 
 ```shell
