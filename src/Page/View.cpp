@@ -146,7 +146,7 @@ void View::contCreate(lv_obj_t *obj)
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_bg_opa(cont, LV_OPA_TRANSP, 0);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0xcccccc), 0);
-    lv_obj_set_style_bg_img_src(cont, "S:./res/icon/main1.bin", 0);
+    lv_obj_set_style_bg_img_src(cont, "S:./picture/cover/main1.bin", 0);
     lv_obj_set_style_bg_img_opa(cont, LV_OPA_COVER, 0);
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
     ui.cont = cont;

@@ -1,6 +1,6 @@
 #include "Model.h"
 
-#define VIDEO_DIR "/mnt/UDISK/"
+#define VIDEO_DIR "/mnt/UDISK/video/"
 
 using namespace Page;
 
