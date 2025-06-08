@@ -22,13 +22,14 @@ CXXSRCS ?=
 CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include
 CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include/allwinner
 CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include/allwinner/include 
+CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/compile_dir/target/freetype-2.13.2/include
 CFLAGS += -I$(PROJECT_DIR)/include
 
 CFLAGS += -pipe -march=armv7-a -mtune=cortex-a7 -mfpu=neon -mfloat-abi=hard -fstack-protector  
 
 LDFLAGS += -L/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/lib
 LDFLAGS += -L/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/lib  
-LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++
+LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++ -lfreetype
 
 # Collect the files to compile
 # CXXSRCS += ./src/mediaPlayer.cpp

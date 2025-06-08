@@ -40,17 +40,34 @@ namespace Page
         struct
         {
             lv_obj_t *cont;
-
+            struct
+            {
+                lv_ft_info_t font16; // 自定义字体
+                lv_ft_info_t font20; // 自定义字体
+            } fontCont;
             struct
             {
                 lv_obj_t *cont;
-                lv_obj_t *btn;
+                lv_obj_t *btn;       // 播放键 / 暂停键
+                lv_obj_t *slider;    // 进度条
+                lv_obj_t *timeLabel; // 时间戳
             } btnCont;
 
             struct
             {
                 lv_obj_t *cont;
-                lv_obj_t *slider;
+                lv_obj_t *speedBtn;  // 倍速
+                lv_obj_t *rotateBtn; // 翻转屏幕
+                lv_obj_t *loopBtn;   // 循环
+                lv_obj_t *lockBtn;   // 锁定
+                lv_obj_t *listBtn;   // 播放列表
+                lv_obj_t *funcBtn;   // Function Button
+            } funcCont;
+            struct
+            {
+                lv_obj_t *cont;
+                lv_obj_t *volumeSlider;     // 音量条
+                lv_obj_t *brightnessSlider; // 亮度条
             } sliderCont;
 
             struct
@@ -61,14 +78,18 @@ namespace Page
 
             lv_anim_timeline_t *anim_timeline;
             lv_anim_timeline_t *anim_timelineClick;
+            lv_anim_timeline_t *anim_timelineSlider;
         } ui;
 
         void create(Operations &opts);
         void release(void);
         void appearAnimStart(bool reverse = false);
+        void appearAnimSlider(bool reverse = false);
         void appearAnimClick(bool reverse = false);
         void addVideoList(const char *name, const void *img_src);
         void setPlayProgress(int cur, int total);
+        void setVolumeProgress(int cur, int total);
+        void setBrightnessProgress(int cur, int total);
 
     private:
         void AttachEvent(lv_obj_t *obj);
@@ -77,6 +98,8 @@ namespace Page
         void btnContCreate(lv_obj_t *obj);
         void sliderContCreate(lv_obj_t *obj);
         void listContCreate(lv_obj_t *obj);
+        void funcContCreate(lv_obj_t *obj);
+        void fontCreate(void);
 
         static void onEvent(lv_event_t *event);
         static void buttonEventHandler(lv_event_t *event);
@@ -84,7 +107,7 @@ namespace Page
         static void sliderEventHandler(lv_event_t *event);
 
         lv_obj_t *roundRectCreate(lv_obj_t *par, lv_coord_t x_ofs, lv_coord_t y_ofs);
-        lv_obj_t *btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t y_ofs);
+        lv_obj_t *btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs, lv_coord_t y_ofs, lv_coord_t w = 50, lv_coord_t h = 50);
         lv_obj_t *sliderCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs = 0, lv_coord_t y_ofs = 0, int32_t min = 0, int32_t max = 255, int32_t val = 0);
         lv_obj_t *listCreate(const char *name, const void *img_src);
     };

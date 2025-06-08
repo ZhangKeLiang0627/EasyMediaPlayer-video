@@ -35,13 +35,17 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
 
     // 这里设置一个1000ms的定时器，软定时器，用于在onTimerUpdate里update
     _timer = lv_timer_create(onTimerUpdate, 1000, this);
+
     // 创建执行线程，传递this指针
-    pthread_create(&_pthread, NULL, threadProcHandler, this); 
+    pthread_create(&_pthread, NULL, threadProcHandler, this);
 }
 
 Model::~Model()
 {
     _threadExitFlag = true;
+
+    // 等待线程退出，回收资源
+    pthread_join(_pthread, NULL);
 
     lv_timer_del(_timer);
 
@@ -65,9 +69,16 @@ void Model::onTimerUpdate(lv_timer_t *timer)
  */
 void Model::update(void)
 {
-    // 更新进度条
-    lv_slider_set_value(_view.ui.sliderCont.slider, getCur() / 1000, LV_ANIM_OFF);
-    lv_slider_set_range(_view.ui.sliderCont.slider, 0, getDuration() / 1000);
+
+    if (_mp != nullptr)
+    {
+        // 更新进度条
+        _view.setPlayProgress(getCur() / 1000.0f, getDuration() / 1000.0f);
+        // 更新音量
+        _view.setVolumeProgress(getVolume(), 40);
+        // // TODO：更新亮度
+        // _view.setBrightnessProgress(50, 100);
+    }
 }
 
 /**
@@ -115,7 +126,9 @@ int Model::searchVideo(std::string path)
         if (legalVideo == true)
         {
             legalVideo = false;
+            pthread_mutex_lock(_mutex);
             _view.addVideoList(ent->d_name, nullptr);
+            pthread_mutex_unlock(_mutex);
             count++;
         }
     }
@@ -138,6 +151,7 @@ void *Model::threadProcHandler(void *arg)
     // 直接播放某视频
     // std::string url = "/mnt/UDISK/video1.mp4";
     // model->_mp->SetNewVideo(url);
+    usleep(50000);
 
     // 手动添加视频至播放列表
     // model->_view.addVideoList("video1.mp4", nullptr);
@@ -148,7 +162,7 @@ void *Model::threadProcHandler(void *arg)
     model->searchVideo(VIDEO_DIR);
 
     while (!model->_threadExitFlag)
-    {   
+    {
         // 获取当前视频的进度和总时长
         // int cur = model->_mp->GetCurrentPos();
         // int total = model->_mp->GetDuration();

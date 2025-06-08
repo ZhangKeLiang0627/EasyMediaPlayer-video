@@ -44,6 +44,7 @@ MediaPlayer::~MediaPlayer(void)
 
     printf("[Player] player destroy.\n");
     TPlayerDestroy(mTPlayer);
+    mTPlayer = NULL;
 
     sem_destroy(&_sem);
 }
@@ -159,7 +160,7 @@ int MediaPlayer::GetDuration(void)
 
 /**
  * @brief 获取当前音量
- * @retval 当前音量大小（0 ~ 100）
+ * @retval 当前音量大小（0 ~ 40）
  */
 int MediaPlayer::GetVolume(void)
 {
@@ -167,6 +168,8 @@ int MediaPlayer::GetVolume(void)
 
     if (_prepareFinishFlag != false)
         volume = TPlayerGetVolume(mTPlayer);
+
+    // printf("[MediaPlayer] getVolume: %d\n", volume);
 
     return volume;
 }
@@ -179,6 +182,8 @@ void MediaPlayer::SetVolume(int volume)
 {
     if (_prepareFinishFlag != false)
         TPlayerSetVolume(mTPlayer, volume);
+
+    // printf("[MediaPlayer] setVolume: %d\n", volume);
 }
 
 /**
