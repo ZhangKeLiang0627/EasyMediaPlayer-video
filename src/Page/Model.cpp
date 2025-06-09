@@ -30,6 +30,7 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
     uiOpts.setVolumeCb = std::bind(&Model::setVolume, this, std::placeholders::_1);
     uiOpts.getVolumeCb = std::bind(&Model::getVolume, this);
     uiOpts.getDurationCb = std::bind(&Model::getDuration, this);
+    uiOpts.setSpeedCb = std::bind(&Model::setSpeed, this, std::placeholders::_1);
 
     _view.create(uiOpts);
 
@@ -267,4 +268,13 @@ void Model::setVolume(int volume)
 {
     if (_mp != nullptr)
         _mp->SetVolume(volume);
+}
+
+/**
+ * @brief UI设置倍速回调函数
+ */
+void Model::setSpeed(int speed)
+{   
+    if (_mp != nullptr)
+        _mp->SetSpeed((TplayerPlaySpeedType)speed);
 }

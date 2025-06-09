@@ -25,7 +25,9 @@ void View::create(Operations &opts)
     AttachEvent(lv_scr_act());
     lv_obj_add_event_cb(ui.btnCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.btnCont.btn, buttonEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.funcCont.speedBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.volumeSlider, sliderEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.sliderCont.brightnessSlider, sliderEventHandler, LV_EVENT_ALL, this);
 
     // 动画的创建
     ui.anim_timeline = lv_anim_timeline_create();
@@ -245,8 +247,14 @@ void View::funcContCreate(lv_obj_t *obj)
     ui.funcCont.cont = cont;
 
     lv_obj_t *btn = nullptr;
-    btn = btnCreate(cont, LV_SYMBOL_NEXT, 6, -4, 30, 30);
+    btn = btnCreate(cont, nullptr, 6, -4, 30, 30);
     ui.funcCont.speedBtn = btn;
+    lv_obj_t *label = lv_label_create(ui.funcCont.speedBtn);
+    lv_obj_remove_style_all(label);
+    lv_obj_set_style_text_font(label, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_center(label);
+    lv_label_set_text_fmt(label, "%s", "x1");
+    ui.funcCont.speedLabel = label;
 
     btn = btnCreate(cont, LV_SYMBOL_EDIT, 47, -4, 30, 30);
     ui.funcCont.loopBtn = btn;
@@ -290,7 +298,7 @@ void View::sliderContCreate(lv_obj_t *obj)
     lv_slider_set_range(ui.sliderCont.volumeSlider, 0, 40);
     lv_slider_set_value(ui.sliderCont.volumeSlider, 20, LV_ANIM_OFF);
 
-    lv_slider_set_range(ui.sliderCont.brightnessSlider, 0, 100);
+    lv_slider_set_range(ui.sliderCont.brightnessSlider, 0, 255);
     lv_slider_set_value(ui.sliderCont.brightnessSlider, 30, LV_ANIM_OFF);
 }
 
@@ -510,42 +518,68 @@ void View::buttonEventHandler(lv_event_t *event)
 
     if (code == LV_EVENT_SHORT_CLICKED)
     {
-        instance->appearAnimClick();
-
-        if (instance->_isPlaying == false)
+        if (obj == instance->ui.btnCont.btn)
         {
-            instance->_isPlaying = true;
-            lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PAUSE, 0);
+            instance->appearAnimClick();
 
-            lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_TRANSP, 0);
-            lv_obj_add_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
+            if (instance->_isPlaying == false)
+            {
+                instance->_isPlaying = true;
+                lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PAUSE, 0);
 
-            lv_disp_get_default()->driver->screen_transp = 1;
-            lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_TRANSP);
-            /* Empty the buffer, not emptying will cause the UI to be opaque */
-            lv_memset_00(lv_disp_get_default()->driver->draw_buf->buf_act,
-                         lv_disp_get_default()->driver->draw_buf->size * sizeof(lv_color32_t));
-            lv_style_set_bg_opa(&style_scr_act, LV_OPA_TRANSP);
-            lv_obj_report_style_change(&style_scr_act);
+                lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_TRANSP, 0);
+                lv_obj_add_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
 
-            if (instance->_opts.playCb != nullptr)
-                instance->_opts.playCb(NULL); // 继续播放
+                lv_disp_get_default()->driver->screen_transp = 1;
+                lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_TRANSP);
+                /* Empty the buffer, not emptying will cause the UI to be opaque */
+                lv_memset_00(lv_disp_get_default()->driver->draw_buf->buf_act,
+                             lv_disp_get_default()->driver->draw_buf->size * sizeof(lv_color32_t));
+                lv_style_set_bg_opa(&style_scr_act, LV_OPA_TRANSP);
+                lv_obj_report_style_change(&style_scr_act);
+
+                if (instance->_opts.playCb != nullptr)
+                    instance->_opts.playCb(NULL); // 继续播放
+            }
+            else
+            {
+                instance->_isPlaying = false;
+                lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PLAY, 0);
+
+                lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
+                lv_obj_clear_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
+
+                lv_disp_get_default()->driver->screen_transp = 0;
+                lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
+                lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
+                lv_obj_report_style_change(&style_scr_act);
+
+                lv_label_set_text_fmt(instance->ui.funcCont.speedLabel, "x%d", 1);
+
+                if (instance->_opts.pauseCb != nullptr)
+                    instance->_opts.pauseCb(); // 暂停播放
+            }
         }
-        else
+
+        if (obj == instance->ui.funcCont.speedBtn)
         {
-            instance->_isPlaying = false;
-            lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PLAY, 0);
+            static int index = 0;
 
-            lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
-            lv_obj_clear_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
-
-            lv_disp_get_default()->driver->screen_transp = 0;
-            lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
-            lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
-            lv_obj_report_style_change(&style_scr_act);
-
-            if (instance->_opts.pauseCb != nullptr)
-                instance->_opts.pauseCb(); // 暂停播放
+            if (instance->_opts.setSpeedCb != nullptr)
+            {
+                if (instance->_opts.getStateCb())
+                {
+                    // 如果在播放
+                    index += 1;
+                    index = index > 4 ? 0 : index;
+                    instance->_opts.setSpeedCb(4 - index); // 设置倍速
+                }
+            }
+            else
+            {
+                index = 0;
+            }
+            lv_label_set_text_fmt(instance->ui.funcCont.speedLabel, "x%d", 1 << index);
         }
     }
 }
@@ -559,7 +593,22 @@ void View::sliderEventHandler(lv_event_t *event)
     lv_event_code_t code = lv_event_get_code(event);
     if (code == LV_EVENT_VALUE_CHANGED)
     {
+        if (obj == instance->ui.btnCont.slider)
+        {
+            int cur = lv_slider_get_value(obj);
+            int total = lv_slider_get_max_value(obj);
+            lv_label_set_text_fmt(instance->ui.btnCont.timeLabel, "%d:%d/%d:%d", cur / 60, cur % 60, total / 60, total % 60);
+        }
         // lv_indev_wait_release(lv_indev_get_act());
+        if (obj == instance->ui.sliderCont.brightnessSlider)
+        {
+            char cmd[512];
+            int value = lv_slider_get_value(obj);
+            memset(cmd, sizeof(cmd), 0);
+            snprintf(cmd, sizeof(cmd) - 1, "cd /sys/kernel/debug/dispdbg; echo lcd0 > name; echo setbl > command; echo %d > param; echo 1 > start\n", value);
+            system(cmd);
+            printf("[Brightness] setValueCmd: %s", cmd);
+        }
     }
     if (code == LV_EVENT_RELEASED)
     {

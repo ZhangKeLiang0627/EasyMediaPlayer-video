@@ -22,7 +22,7 @@ MediaPlayer::MediaPlayer(std::string *url)
 
     // 设置循环播放
     SetLoop(true);
-    
+
     // url路径不为空，则开始播放音视频
     if (url != nullptr)
     {
@@ -238,6 +238,35 @@ bool MediaPlayer::SetRotate(TplayerVideoRotateType rotateDegree)
 {
     bool state = false;
     if (TPlayerSetRotate(mTPlayer, rotateDegree) == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/**
+ * @brief 设置视频快进快退的速度
+ * @retval true 成功 / false 失败
+ */
+// typedef enum TplayerPlaySpeedType
+// {
+//     PLAY_SPEED_FAST_FORWARD_16 = 0,  /*fast forward 16 times*/
+//     PLAY_SPEED_FAST_FORWARD_8 = 1,   /*fast forward 8 times*/
+//     PLAY_SPEED_FAST_FORWARD_4 = 2,   /*fast forward 4 times*/
+//     PLAY_SPEED_FAST_FORWARD_2 = 3,   /*fast forward 2 times*/
+//     PLAY_SPEED_1              = 4,            /*normal play*/
+//     PLAY_SPEED_FAST_BACKWARD_2 = 5,  /*fast backward 2 times*/
+//     PLAY_SPEED_FAST_BACKWARD_4 = 6,  /*fast backward  4 times*/
+//     PLAY_SPEED_FAST_BACKWARD_8 = 7,  /*fast backward  8 times*/
+//     PLAY_SPEED_FAST_BACKWARD_16 = 8, /*fast backward  16 times*/
+// } TplayerPlaySpeedType;
+bool MediaPlayer::SetSpeed(TplayerPlaySpeedType speed)
+{
+    bool state = false;
+    if (TPlayerSetSpeed(mTPlayer, speed) == 0)
     {
         return true;
     }

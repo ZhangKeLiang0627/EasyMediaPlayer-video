@@ -37,6 +37,7 @@ namespace Page
         int getCur(void);
         int getDuration(void);
         void setVolume(int volume);
+        void setSpeed(int speed);
 
     public:
         Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex);

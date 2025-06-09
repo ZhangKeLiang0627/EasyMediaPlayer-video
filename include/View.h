@@ -16,6 +16,7 @@ namespace Page
     using GetDurationCb = std::function<int(void)>;
     using GetVolumeCb = std::function<int(void)>;
     using SetVolumeCb = std::function<void(int)>;
+    using SetSpeedCb = std::function<void(int)>;
 
     struct Operations
     {
@@ -28,6 +29,7 @@ namespace Page
         GetDurationCb getDurationCb; // 获取视频总长度回调函数
         GetVolumeCb getVolumeCb;     // 获取视频音量回调函数
         SetVolumeCb setVolumeCb;     // 设置视频音量回调函数
+        SetSpeedCb setSpeedCb;     // 设置视频倍速回调函数
     };
 
     class View
@@ -62,6 +64,8 @@ namespace Page
                 lv_obj_t *lockBtn;   // 锁定
                 lv_obj_t *listBtn;   // 播放列表
                 lv_obj_t *funcBtn;   // Function Button
+
+                lv_obj_t *speedLabel; // 倍速标签
             } funcCont;
             struct
             {

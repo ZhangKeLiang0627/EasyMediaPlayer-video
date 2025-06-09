@@ -33,6 +33,7 @@ public:
     void SetLoop(bool isLoop);
     bool SetDisplayArea(int x, int y, unsigned int width, unsigned int height);
     bool SetRotate(TplayerVideoRotateType rotateDegree);
+    bool SetSpeed(TplayerPlaySpeedType speed);
     MediaInfo *GetMediaInfo(void)
     {
         return TPlayerGetMediaInfo(mTPlayer);
