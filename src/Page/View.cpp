@@ -26,6 +26,7 @@ void View::create(Operations &opts)
     lv_obj_add_event_cb(ui.btnCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.btnCont.btn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.funcCont.speedBtn, buttonEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.funcCont.rotateBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.volumeSlider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.brightnessSlider, sliderEventHandler, LV_EVENT_ALL, this);
 
@@ -256,11 +257,17 @@ void View::funcContCreate(lv_obj_t *obj)
     lv_label_set_text_fmt(label, "%s", "x1");
     ui.funcCont.speedLabel = label;
 
-    btn = btnCreate(cont, LV_SYMBOL_EDIT, 47, -4, 30, 30);
+    btn = btnCreate(cont, LV_SYMBOL_LOOP, 47, -4, 30, 30);
     ui.funcCont.loopBtn = btn;
 
-    btn = btnCreate(cont, LV_SYMBOL_LOOP, 88, -4, 30, 30);
+    btn = btnCreate(cont, nullptr, 88, -4, 30, 30);
     ui.funcCont.rotateBtn = btn;
+    label = lv_label_create(ui.funcCont.rotateBtn);
+    lv_obj_remove_style_all(label);
+    lv_obj_set_style_text_font(label, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_center(label);
+    lv_label_set_text_fmt(label, "%s", "0°");
+    ui.funcCont.rotateLabel = label;
 }
 
 // 音量、亮度条画布的创建
@@ -299,7 +306,7 @@ void View::sliderContCreate(lv_obj_t *obj)
     lv_slider_set_value(ui.sliderCont.volumeSlider, 20, LV_ANIM_OFF);
 
     lv_slider_set_range(ui.sliderCont.brightnessSlider, 0, 255);
-    lv_slider_set_value(ui.sliderCont.brightnessSlider, 30, LV_ANIM_OFF);
+    lv_slider_set_value(ui.sliderCont.brightnessSlider, 255, LV_ANIM_OFF);
 }
 
 void View::listContCreate(lv_obj_t *obj)
@@ -308,16 +315,17 @@ void View::listContCreate(lv_obj_t *obj)
     lv_obj_remove_style_all(listCont);
     lv_obj_set_size(listCont, lv_pct(80), lv_pct(50));
     // lv_obj_clear_flag(listCont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_bg_opa(listCont, LV_OPA_60, 0);
+    lv_obj_set_style_bg_opa(listCont, LV_OPA_70, 0);
     lv_obj_set_style_bg_color(listCont, lv_color_hex(0x6a8d6d), 0);
     lv_obj_align(listCont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(listCont, 16, LV_PART_MAIN);
     lv_obj_set_style_pad_row(listCont, 20, LV_PART_MAIN);
 
     lv_obj_set_flex_flow(listCont, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(listCont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    // lv_obj_set_flex_align(listCont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_scroll_dir(listCont, LV_DIR_VER);
-    lv_obj_set_scroll_snap_y(listCont, LV_SCROLL_SNAP_CENTER);
+    lv_obj_set_scroll_snap_y(listCont, LV_SCROLL_SNAP_NONE);
+    lv_obj_set_scrollbar_mode(listCont, LV_SCROLLBAR_MODE_ON); // 设置滚动条是否显示：是
 
     ui.listCont.cont = listCont;
 }
@@ -580,6 +588,24 @@ void View::buttonEventHandler(lv_event_t *event)
                 index = 0;
             }
             lv_label_set_text_fmt(instance->ui.funcCont.speedLabel, "x%d", 1 << index);
+        }
+        else if (obj == instance->ui.funcCont.rotateBtn)
+        {
+            static int angle = 0;
+
+            if (instance->_opts.setRotateCb != nullptr)
+            {
+                if (instance->_opts.getStateCb())
+                {
+                    // the xplayer do not supply this interface, and this interface should be called before prepare status
+                    //  如果在播放
+                    angle += 90;
+                    angle = angle > 270 ? 0 : angle;
+                    instance->_opts.setRotateCb(angle);
+                }
+            }
+
+            lv_label_set_text_fmt(instance->ui.funcCont.rotateLabel, "%d°", angle);
         }
     }
 }

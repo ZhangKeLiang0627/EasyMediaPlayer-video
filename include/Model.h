@@ -38,6 +38,7 @@ namespace Page
         int getDuration(void);
         void setVolume(int volume);
         void setSpeed(int speed);
+        void setRotate(int angle);
 
     public:
         Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex);

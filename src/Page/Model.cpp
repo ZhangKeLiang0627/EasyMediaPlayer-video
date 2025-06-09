@@ -1,6 +1,7 @@
 #include "Model.h"
 
 #define VIDEO_DIR "/mnt/UDISK/video/"
+#define SD_VIDEO_DIR "/mnt/exUDISK/video/"
 
 using namespace Page;
 
@@ -31,6 +32,7 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
     uiOpts.getVolumeCb = std::bind(&Model::getVolume, this);
     uiOpts.getDurationCb = std::bind(&Model::getDuration, this);
     uiOpts.setSpeedCb = std::bind(&Model::setSpeed, this, std::placeholders::_1);
+    uiOpts.setRotateCb = std::bind(&Model::setRotate, this, std::placeholders::_1);
 
     _view.create(uiOpts);
 
@@ -161,6 +163,8 @@ void *Model::threadProcHandler(void *arg)
 
     // 搜索并添加视频至播放列表
     model->searchVideo(VIDEO_DIR);
+    // model->searchVideo(SD_VIDEO_DIR);
+  
 
     while (!model->_threadExitFlag)
     {
@@ -277,4 +281,13 @@ void Model::setSpeed(int speed)
 {   
     if (_mp != nullptr)
         _mp->SetSpeed((TplayerPlaySpeedType)speed);
+}
+
+/**
+ * @brief UI设置翻转屏幕回调函数
+ */
+void Model::setRotate(int angle)
+{
+    if (_mp != nullptr)
+        _mp->SetRotate((TplayerVideoRotateType)angle);
 }
