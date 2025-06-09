@@ -97,6 +97,11 @@ int Model::searchVideo(std::string path)
 
     struct dirent *ent;
     DIR *dir = opendir(path.c_str());
+    if (dir == NULL)
+    {
+        // 打开目录失败，直接返回0
+        return 0;
+    }
 
     for (int i = 0;; i++)
     {
@@ -163,7 +168,7 @@ void *Model::threadProcHandler(void *arg)
 
     // 搜索并添加视频至播放列表
     model->searchVideo(VIDEO_DIR);
-    // model->searchVideo(SD_VIDEO_DIR);
+    model->searchVideo(SD_VIDEO_DIR);
   
 
     while (!model->_threadExitFlag)
@@ -224,14 +229,56 @@ void Model::play(const char *name)
 {
     if (name == NULL)
     {
-        _mp->Start(); // 继续播放
+        if (_mp != nullptr)
+            _mp->Start(); // 继续播放
         return;
     }
 
-    // 播放新的视频
-    std::string url = VIDEO_DIR + std::string(name);
-    _mp->SetNewVideo(url);
-    _mp->Start();
+    std::string videoName(name);
+    std::string url;
+
+    // TODO：急需一个更加优雅的方法，来分类与加载视频源
+
+    // 检查VIDEO_DIR
+    DIR *dir = opendir(VIDEO_DIR);
+    if (dir != NULL)
+    {
+        struct dirent *ent;
+        while ((ent = readdir(dir)) != NULL)
+        {
+            if (ent->d_type == DT_REG && videoName == ent->d_name)
+            {
+                url = std::string(VIDEO_DIR) + videoName;
+                break;
+            }
+        }
+        closedir(dir);
+    }
+
+    // 如果没找到，再检查SD_VIDEO_DIR
+    if (url.empty())
+    {
+        dir = opendir(SD_VIDEO_DIR);
+        if (dir != NULL)
+        {
+            struct dirent *ent;
+            while ((ent = readdir(dir)) != NULL)
+            {
+                if (ent->d_type == DT_REG && videoName == ent->d_name)
+                {
+                    url = std::string(SD_VIDEO_DIR) + videoName;
+                    break;
+                }
+            }
+            closedir(dir);
+        }
+    }
+
+    if (!url.empty() && _mp != nullptr)
+    {
+        _mp->SetNewVideo(url);
+        _mp->Start();
+    }
 }
 
 /**

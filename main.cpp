@@ -18,6 +18,9 @@ int main(int argc, char *argv[])
     system("amixer sset Headphone unmute");
     system("amixer sset \"Headphone volume\" 5");
 
+    // TODO：解决重复挂载的问题
+    system("mount /dev/sda /mnt/exUDISK/");
+
     // Init HAL
     HAL::Init();
 
