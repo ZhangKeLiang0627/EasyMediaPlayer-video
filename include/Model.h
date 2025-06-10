@@ -39,6 +39,7 @@ namespace Page
         void setVolume(int volume);
         void setSpeed(int speed);
         void setRotate(int angle);
+        void setFullScreen(bool isFullScreen);
 
     public:
         Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex);

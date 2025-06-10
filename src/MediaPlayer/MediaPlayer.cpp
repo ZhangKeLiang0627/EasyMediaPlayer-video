@@ -248,6 +248,26 @@ bool MediaPlayer::SetRotate(TplayerVideoRotateType rotateDegree)
 }
 
 /**
+ * @brief 设置视频是否全屏
+ * @retval true 成功 / false 失败
+ */
+bool MediaPlayer::SetFullScreen(bool isFullScreen)
+{
+    _fullScreenFlag = isFullScreen;
+
+    // 设置消息回调函数
+    TPlayerSetNotifyCallback(mTPlayer, CallbackForTPlayer, this);
+
+    printf("[MediaPlayer] SetFullScreen!\n");
+    return true;
+}
+
+bool MediaPlayer::GetFullScreen(void)
+{
+    return _fullScreenFlag;
+}
+
+/**
  * @brief 设置视频快进快退的速度
  * @retval true 成功 / false 失败
  */
@@ -272,6 +292,7 @@ bool MediaPlayer::SetSpeed(TplayerPlaySpeedType speed)
     }
     else
     {
+
         return false;
     }
 }
@@ -362,20 +383,28 @@ int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
     }
     case TPLAYER_NOTYFY_DECODED_VIDEO_SIZE:
     {
-        int w, h, y;
-        w = ((int *)param1)[0]; // real decoded video width
-        h = ((int *)param1)[1]; // real decoded video height
-        printf("[PlayerCb] tplayerdemo: video decoded width = %d, height = %d\n", w, h);
-        float divider = 1;
-        if (w > LCD_WIDTH)
-        {
-            divider = w / LCD_WIDTH;
-        }
-        w = w / divider;
-        h = h / divider;
-        y = (LCD_WIDTH - h) / 2;
-        printf("[PlayerCb] real set to display rect: w = %d, h = %d\n", w, h);
-        player->SetDisplayArea(0, y, w, h);
+        // TODO: full screen display
+
+        // printf("[PlayerCb] ChangeState: %d\n", (int)&player->GetFullScreen());
+
+        // if (&player->GetFullScreen())
+        // {
+        //     int w, h, y;
+        //     w = ((int *)param1)[0]; // real decoded video width
+        //     h = ((int *)param1)[1]; // real decoded video height
+        //     printf("[PlayerCb] tplayerdemo: video decoded width = %d, height = %d\n", w, h);
+        //     float divider = 1;
+        //     if (w > LCD_WIDTH)
+        //     {
+        //         divider = w / LCD_WIDTH;
+        //     }
+        //     w = w / divider;
+        //     h = h / divider;
+        //     y = (LCD_WIDTH - h) / 2;
+        //     printf("[PlayerCb] real set to display rect: w = %d, h = %d\n", w, h);
+        //     player->SetDisplayArea(0, y, w, h);
+        // }
+
         break;
     }
 

@@ -11,10 +11,11 @@ class MediaPlayer
 {
 public:
 private:
-    TPlayer *mTPlayer;       // 播放器
-    std::string _sourceUrl;  // 播放的视频路径
-    sem_t _sem;              // 异步通知信号量
-    bool _prepareFinishFlag; // 音视频是否准备标志位
+    TPlayer *mTPlayer;            // 播放器
+    std::string _sourceUrl;       // 播放的视频路径
+    sem_t _sem;                   // 异步通知信号量
+    bool _prepareFinishFlag;      // 音视频是否准备标志位
+    bool _fullScreenFlag = false; // is video full of screen flag
 
     friend int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1);
 
@@ -34,6 +35,8 @@ public:
     bool SetDisplayArea(int x, int y, unsigned int width, unsigned int height);
     bool SetRotate(TplayerVideoRotateType rotateDegree);
     bool SetSpeed(TplayerPlaySpeedType speed);
+    bool SetFullScreen(bool isFullScreen);
+    bool GetFullScreen(void);
     MediaInfo *GetMediaInfo(void)
     {
         return TPlayerGetMediaInfo(mTPlayer);

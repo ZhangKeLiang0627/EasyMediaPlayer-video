@@ -18,20 +18,22 @@ namespace Page
     using SetVolumeCb = std::function<void(int)>;
     using SetSpeedCb = std::function<void(int)>;
     using SetRotateCb = std::function<void(int)>;
+    using SetFullScreenCb = std::function<void(bool)>;
 
     struct Operations
     {
         ExitCb exitCb;
-        GetPlayStateCb getStateCb;   // 获取播放状态
-        PauseCb pauseCb;             // 当前视频暂停回调函数
-        PlayCb playCb;               // 视频播放回调函数
-        SetCurCb setCurCb;           // 视频设置进度回调函数
-        GetCurCb getCurCb;           // 获取视频进度回调函数
-        GetDurationCb getDurationCb; // 获取视频总长度回调函数
-        GetVolumeCb getVolumeCb;     // 获取视频音量回调函数
-        SetVolumeCb setVolumeCb;     // 设置视频音量回调函数
-        SetSpeedCb setSpeedCb;       // 设置视频倍速回调函数
-        SetRotateCb setRotateCb;     // 设置翻转屏幕回调函数
+        GetPlayStateCb getStateCb;       // 获取播放状态
+        PauseCb pauseCb;                 // 当前视频暂停回调函数
+        PlayCb playCb;                   // 视频播放回调函数
+        SetCurCb setCurCb;               // 视频设置进度回调函数
+        GetCurCb getCurCb;               // 获取视频进度回调函数
+        GetDurationCb getDurationCb;     // 获取视频总长度回调函数
+        GetVolumeCb getVolumeCb;         // 获取视频音量回调函数
+        SetVolumeCb setVolumeCb;         // 设置视频音量回调函数
+        SetSpeedCb setSpeedCb;           // 设置视频倍速回调函数
+        SetRotateCb setRotateCb;         // 设置翻转屏幕回调函数
+        SetFullScreenCb setFullScreenCb; // 设置视频是否全屏回调函数
     };
 
     class View
@@ -60,15 +62,17 @@ namespace Page
             struct
             {
                 lv_obj_t *cont;
-                lv_obj_t *speedBtn;  // 倍速
-                lv_obj_t *rotateBtn; // 翻转屏幕
-                lv_obj_t *loopBtn;   // 循环
-                lv_obj_t *lockBtn;   // 锁定
-                lv_obj_t *listBtn;   // 播放列表
-                lv_obj_t *funcBtn;   // Function Button
+                lv_obj_t *speedBtn;      // 倍速
+                lv_obj_t *rotateBtn;     // 翻转屏幕
+                lv_obj_t *loopBtn;       // 循环
+                lv_obj_t *lockBtn;       // 锁定
+                lv_obj_t *listBtn;       // 播放列表
+                lv_obj_t *fullScreenBtn; // 视频全屏
+                lv_obj_t *funcBtn;       // Function Button
 
-                lv_obj_t *speedLabel;  // 倍速标签
-                lv_obj_t *rotateLabel; // 翻转屏幕标签
+                lv_obj_t *speedLabel;      // 倍速标签
+                lv_obj_t *rotateLabel;     // 翻转屏幕标签
+                lv_obj_t *fullScreenLabel; // 视频全屏标签
             } funcCont;
             struct
             {

@@ -26,7 +26,7 @@ void View::create(Operations &opts)
     lv_obj_add_event_cb(ui.btnCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.btnCont.btn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.funcCont.speedBtn, buttonEventHandler, LV_EVENT_ALL, this);
-    lv_obj_add_event_cb(ui.funcCont.rotateBtn, buttonEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.funcCont.fullScreenBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.volumeSlider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.brightnessSlider, sliderEventHandler, LV_EVENT_ALL, this);
 
@@ -261,13 +261,22 @@ void View::funcContCreate(lv_obj_t *obj)
     ui.funcCont.loopBtn = btn;
 
     btn = btnCreate(cont, nullptr, 88, -4, 30, 30);
-    ui.funcCont.rotateBtn = btn;
-    label = lv_label_create(ui.funcCont.rotateBtn);
+    ui.funcCont.fullScreenBtn = btn;
+    label = lv_label_create(ui.funcCont.fullScreenBtn);
     lv_obj_remove_style_all(label);
     lv_obj_set_style_text_font(label, ui.fontCont.font20.font, LV_STATE_DEFAULT);
     lv_obj_center(label);
-    lv_label_set_text_fmt(label, "%s", "0°");
-    ui.funcCont.rotateLabel = label;
+    lv_label_set_text_fmt(label, "%s", "半");
+    ui.funcCont.fullScreenLabel = label;
+
+    // btn = btnCreate(cont, nullptr, 88, -4, 30, 30);
+    // ui.funcCont.rotateBtn = btn;
+    // label = lv_label_create(ui.funcCont.rotateBtn);
+    // lv_obj_remove_style_all(label);
+    // lv_obj_set_style_text_font(label, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    // lv_obj_center(label);
+    // lv_label_set_text_fmt(label, "%s", "0°");
+    // ui.funcCont.rotateLabel = label;
 }
 
 // 音量、亮度条画布的创建
@@ -589,24 +598,38 @@ void View::buttonEventHandler(lv_event_t *event)
             }
             lv_label_set_text_fmt(instance->ui.funcCont.speedLabel, "x%d", 1 << index);
         }
-        else if (obj == instance->ui.funcCont.rotateBtn)
+        else if (obj == instance->ui.funcCont.fullScreenBtn)
         {
-            static int angle = 0;
+            static bool state = false;
 
-            if (instance->_opts.setRotateCb != nullptr)
+            if (instance->_opts.setFullScreenCb != nullptr)
             {
-                if (instance->_opts.getStateCb())
-                {
-                    // the xplayer do not supply this interface, and this interface should be called before prepare status
-                    //  如果在播放
-                    angle += 90;
-                    angle = angle > 270 ? 0 : angle;
-                    instance->_opts.setRotateCb(angle);
-                }
+                state = !state;
+                instance->_opts.setFullScreenCb(state);
+
+                printf("[View] SetFullScreen!\n");
             }
 
-            lv_label_set_text_fmt(instance->ui.funcCont.rotateLabel, "%d°", angle);
+            lv_label_set_text_fmt(instance->ui.funcCont.fullScreenLabel, "%s", state ? "全" : "半");
         }
+        // else if (obj == instance->ui.funcCont.rotateBtn)
+        // {
+        //     static int angle = 0;
+
+        //     if (instance->_opts.setRotateCb != nullptr)
+        //     {
+        //         if (instance->_opts.getStateCb())
+        //         {
+        //             // the xplayer do not supply this interface, and this interface should be called before prepare status
+        //             //  如果在播放
+        //             angle += 90;
+        //             angle = angle > 270 ? 0 : angle;
+        //             instance->_opts.setRotateCb(angle);
+        //         }
+        //     }
+
+        //     lv_label_set_text_fmt(instance->ui.funcCont.rotateLabel, "%d°", angle);
+        // }
     }
 }
 

@@ -33,6 +33,7 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
     uiOpts.getDurationCb = std::bind(&Model::getDuration, this);
     uiOpts.setSpeedCb = std::bind(&Model::setSpeed, this, std::placeholders::_1);
     uiOpts.setRotateCb = std::bind(&Model::setRotate, this, std::placeholders::_1);
+    uiOpts.setFullScreenCb = std::bind(&Model::setFullScreen, this, std::placeholders::_1);
 
     _view.create(uiOpts);
 
@@ -169,7 +170,6 @@ void *Model::threadProcHandler(void *arg)
     // 搜索并添加视频至播放列表
     model->searchVideo(VIDEO_DIR);
     model->searchVideo(SD_VIDEO_DIR);
-  
 
     while (!model->_threadExitFlag)
     {
@@ -325,7 +325,7 @@ void Model::setVolume(int volume)
  * @brief UI设置倍速回调函数
  */
 void Model::setSpeed(int speed)
-{   
+{
     if (_mp != nullptr)
         _mp->SetSpeed((TplayerPlaySpeedType)speed);
 }
@@ -337,4 +337,15 @@ void Model::setRotate(int angle)
 {
     if (_mp != nullptr)
         _mp->SetRotate((TplayerVideoRotateType)angle);
+}
+
+/**
+ * @brief UI设置视频是否全屏回调函数
+ */
+void Model::setFullScreen(bool isFullScreen)
+{
+    if (_mp != nullptr)
+        _mp->SetFullScreen(isFullScreen);
+
+    printf("[Model] SetFullScreen!\n");
 }
