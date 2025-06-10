@@ -346,6 +346,4 @@ void Model::setFullScreen(bool isFullScreen)
 {
     if (_mp != nullptr)
         _mp->SetFullScreen(isFullScreen);
-
-    printf("[Model] SetFullScreen!\n");
 }

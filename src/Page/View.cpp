@@ -603,11 +603,13 @@ void View::buttonEventHandler(lv_event_t *event)
             static bool state = false;
 
             if (instance->_opts.setFullScreenCb != nullptr)
-            {
-                state = !state;
-                instance->_opts.setFullScreenCb(state);
-
-                printf("[View] SetFullScreen!\n");
+            {   
+                // 当前未播放
+                if(!instance->_opts.getStateCb())
+                {
+                    state = !state;
+                    instance->_opts.setFullScreenCb(state);
+                }
             }
 
             lv_label_set_text_fmt(instance->ui.funcCont.fullScreenLabel, "%s", state ? "全" : "半");
