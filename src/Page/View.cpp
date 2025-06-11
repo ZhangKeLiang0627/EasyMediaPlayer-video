@@ -20,6 +20,8 @@ void View::create(Operations &opts)
     btnContCreate(ui.cont);
     // 音量、亮度条画布的创建
     sliderContCreate(ui.cont);
+    // topContCreate
+    topContCreate(ui.cont);
 
     // 添加事件回调函数
     AttachEvent(lv_scr_act());
@@ -339,6 +341,37 @@ void View::listContCreate(lv_obj_t *obj)
     ui.listCont.cont = listCont;
 }
 
+void View::topContCreate(lv_obj_t *obj)
+{
+    lv_obj_t *cont = lv_obj_create(obj);
+    lv_obj_remove_style_all(cont);
+    lv_obj_set_size(cont, lv_pct(95), lv_pct(8));
+    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_opa(cont, LV_OPA_90, 0);
+    lv_obj_set_style_bg_color(cont, lv_color_hex(0xeeeeee), 0);
+    lv_obj_align(cont, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_set_style_radius(cont, 5, LV_PART_MAIN);
+    ui.topCont.cont = cont;
+
+    lv_obj_t *btn = btnCreate(cont, nullptr, 0, 0, 30, 30);
+    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -5, 4);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0); // 设置按钮默认的颜色
+    ui.topCont.cancelBtn = btn;
+    lv_obj_t *btnLabel = lv_label_create(ui.topCont.cancelBtn);
+    lv_obj_remove_style_all(btnLabel);
+    lv_obj_set_style_text_font(btnLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(btnLabel, lv_color_hex(0xffffff), 0);
+    lv_obj_center(btnLabel);
+    lv_label_set_text_fmt(btnLabel, "%s", "x");
+
+    lv_obj_t *videoNameLabel = lv_label_create(cont);
+    lv_obj_remove_style_all(videoNameLabel);
+    lv_obj_set_style_text_font(videoNameLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(videoNameLabel, lv_color_black(), 0);
+    lv_obj_center(videoNameLabel);
+    lv_label_set_text_fmt(videoNameLabel, "%s", "videoName");
+}
+
 lv_obj_t *View::sliderCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs, lv_coord_t y_ofs, int32_t min, int32_t max, int32_t val)
 {
     lv_obj_t *obj = lv_slider_create(par);
@@ -603,9 +636,9 @@ void View::buttonEventHandler(lv_event_t *event)
             static bool state = false;
 
             if (instance->_opts.setFullScreenCb != nullptr)
-            {   
+            {
                 // 当前未播放
-                if(!instance->_opts.getStateCb())
+                if (!instance->_opts.getStateCb())
                 {
                     state = !state;
                     instance->_opts.setFullScreenCb(state);

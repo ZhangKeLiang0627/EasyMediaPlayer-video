@@ -80,6 +80,12 @@ namespace Page
                 lv_obj_t *volumeSlider;     // 音量条
                 lv_obj_t *brightnessSlider; // 亮度条
             } sliderCont;
+            struct
+            {
+                lv_obj_t *cont;
+                lv_obj_t *cancelBtn;      // to cancel this app
+                lv_obj_t *videoNameLabel; // to show the video name which is playing
+            } topCont;
 
             struct
             {
@@ -110,6 +116,7 @@ namespace Page
         void sliderContCreate(lv_obj_t *obj);
         void listContCreate(lv_obj_t *obj);
         void funcContCreate(lv_obj_t *obj);
+        void topContCreate(lv_obj_t *obj);
         void fontCreate(void);
 
         static void onEvent(lv_event_t *event);
