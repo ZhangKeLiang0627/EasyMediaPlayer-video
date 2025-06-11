@@ -36,6 +36,7 @@ void View::create(Operations &opts)
     ui.anim_timeline = lv_anim_timeline_create();
     ui.anim_timelineClick = lv_anim_timeline_create();
     ui.anim_timelineSlider = lv_anim_timeline_create();
+    ui.anim_timelineTop = lv_anim_timeline_create();
 
 #define ANIM_DEF(start_time, obj, attr, start, end) \
     {start_time, obj, LV_ANIM_EXEC(attr), start, end, 500, lv_anim_path_ease_out, true}
@@ -61,6 +62,15 @@ void View::create(Operations &opts)
             LV_ANIM_TIMELINE_WRAPPER_END // 这个标志着结构体成员结束，不能省略，在下面函数lv_anim_timeline_add_wrapper的轮询中做判断条件
         };
     lv_anim_timeline_add_wrapper(ui.anim_timelineSlider, wrapperSlider);
+
+    lv_anim_timeline_wrapper_t wrapperTop[] =
+        {
+            ANIM_DEF(0, ui.topCont.cont, y, -20, lv_obj_get_x_aligned(ui.btnCont.cont)),
+            ANIM_DEF(0, ui.topCont.cont, width, 20, lv_obj_get_width(ui.btnCont.cont)),
+
+            LV_ANIM_TIMELINE_WRAPPER_END // 这个标志着结构体成员结束，不能省略，在下面函数lv_anim_timeline_add_wrapper的轮询中做判断条件
+        };
+    lv_anim_timeline_add_wrapper(ui.anim_timelineTop, wrapperTop);
 
     lv_coord_t xOriginal = lv_obj_get_x_aligned(lv_obj_get_child(ui.btnCont.cont, 1));
     lv_coord_t yOriginal = lv_obj_get_y_aligned(lv_obj_get_child(ui.btnCont.cont, 1));
@@ -110,6 +120,7 @@ void View::create(Operations &opts)
     // 开始动画
     appearAnimStart();
     appearAnimSlider();
+    appearAnimTop();
 }
 
 void View::release()
@@ -155,6 +166,12 @@ void View::appearAnimClick(bool reverse) // 按钮动画
 {
     lv_anim_timeline_set_reverse(ui.anim_timelineClick, reverse);
     lv_anim_timeline_start(ui.anim_timelineClick);
+}
+
+void View::appearAnimTop(bool reverse) // topCont动画
+{
+    lv_anim_timeline_set_reverse(ui.anim_timelineTop, reverse);
+    lv_anim_timeline_start(ui.anim_timelineTop);
 }
 
 void View::AttachEvent(lv_obj_t *obj)

@@ -96,6 +96,7 @@ namespace Page
             lv_anim_timeline_t *anim_timeline;
             lv_anim_timeline_t *anim_timelineClick;
             lv_anim_timeline_t *anim_timelineSlider;
+            lv_anim_timeline_t *anim_timelineTop;
         } ui;
 
         void create(Operations &opts);
@@ -103,6 +104,7 @@ namespace Page
         void appearAnimStart(bool reverse = false);
         void appearAnimSlider(bool reverse = false);
         void appearAnimClick(bool reverse = false);
+        void appearAnimTop(bool reverse = false);
         void addVideoList(const char *name, const void *img_src);
         void setPlayProgress(int cur, int total);
         void setVolumeProgress(int cur, int total);
