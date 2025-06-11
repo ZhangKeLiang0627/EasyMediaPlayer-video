@@ -25,10 +25,12 @@ void View::create(Operations &opts)
 
     // 添加事件回调函数
     AttachEvent(lv_scr_act());
-    lv_obj_add_event_cb(ui.btnCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.btnCont.btn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.funcCont.speedBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.funcCont.fullScreenBtn, buttonEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.topCont.cancelBtn, buttonEventHandler, LV_EVENT_ALL, this);
+
+    lv_obj_add_event_cb(ui.btnCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.volumeSlider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.brightnessSlider, sliderEventHandler, LV_EVENT_ALL, this);
 
@@ -387,6 +389,8 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_set_style_text_color(videoNameLabel, lv_color_black(), 0);
     lv_obj_center(videoNameLabel);
     lv_label_set_text_fmt(videoNameLabel, "%s", "videoName");
+
+    ui.topCont.videoNameLabel = videoNameLabel;
 }
 
 lv_obj_t *View::sliderCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs, lv_coord_t y_ofs, int32_t min, int32_t max, int32_t val)
@@ -664,24 +668,10 @@ void View::buttonEventHandler(lv_event_t *event)
 
             lv_label_set_text_fmt(instance->ui.funcCont.fullScreenLabel, "%s", state ? "全" : "半");
         }
-        // else if (obj == instance->ui.funcCont.rotateBtn)
-        // {
-        //     static int angle = 0;
-
-        //     if (instance->_opts.setRotateCb != nullptr)
-        //     {
-        //         if (instance->_opts.getStateCb())
-        //         {
-        //             // the xplayer do not supply this interface, and this interface should be called before prepare status
-        //             //  如果在播放
-        //             angle += 90;
-        //             angle = angle > 270 ? 0 : angle;
-        //             instance->_opts.setRotateCb(angle);
-        //         }
-        //     }
-
-        //     lv_label_set_text_fmt(instance->ui.funcCont.rotateLabel, "%d°", angle);
-        // }
+        else if (obj == instance->ui.topCont.cancelBtn)
+        {
+            instance->_opts.exitCb();
+        }
     }
 }
 
@@ -772,6 +762,7 @@ void View::listBtnEventHandler(lv_event_t *event)
         if (instance->_opts.playCb != nullptr)
         {
             instance->_opts.playCb(videoName); // 新视频播放
+            lv_label_set_text_fmt(instance->ui.topCont.videoNameLabel, "%s", videoName);
         }
     }
 }
@@ -804,7 +795,7 @@ void View::onEvent(lv_event_t *event)
             break;
         case LV_DIR_BOTTOM:
             printf("[View] LV_DIR_BOTTOM!\n");
-            instance->_opts.exitCb();
+            // instance->_opts.exitCb();
             break;
 
         default:
