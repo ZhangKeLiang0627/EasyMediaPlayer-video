@@ -73,7 +73,6 @@ void Model::onTimerUpdate(lv_timer_t *timer)
  */
 void Model::update(void)
 {
-
     if (_mp != nullptr)
     {
         // 更新进度条

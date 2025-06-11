@@ -21,6 +21,11 @@ namespace Page
         View _view;              // View的实例
         lv_timer_t *_timer;      // LVGL软定时器
 
+        struct
+        {
+            uint32_t lastContShowTime;
+        } _priv; // 零零散散的变量
+
     private:
         static void *threadProcHandler(void *);
         void update(void);

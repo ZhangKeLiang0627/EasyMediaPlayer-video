@@ -29,6 +29,7 @@ void View::create(Operations &opts)
     lv_obj_add_event_cb(ui.funcCont.speedBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.funcCont.fullScreenBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.topCont.cancelBtn, buttonEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.topCont.lockBtn, buttonEventHandler, LV_EVENT_ALL, this);
 
     lv_obj_add_event_cb(ui.btnCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.volumeSlider, sliderEventHandler, LV_EVENT_ALL, this);
@@ -59,8 +60,9 @@ void View::create(Operations &opts)
     lv_anim_timeline_wrapper_t wrapperSlider[] =
         {
             ANIM_DEF(0, ui.sliderCont.cont, x, lv_obj_get_x_aligned(ui.sliderCont.cont), 150),
-            ANIM_DEF(0, ui.sliderCont.cont, y, lv_obj_get_y_aligned(ui.sliderCont.cont), -50),
-            // ANIM_DEF(0, ui.sliderCont.cont, y, lv_obj_get_y_aligned(ui.sliderCont.cont), -50),
+            ANIM_DEF(0, ui.sliderCont.cont, y, lv_obj_get_y_aligned(ui.sliderCont.cont), -20),
+            // ANIM_DEF(0, ui.sliderCont.cont, width, lv_obj_get_width(ui.sliderCont.cont), 80),
+            ANIM_DEF(0, ui.sliderCont.cont, height, lv_obj_get_height(ui.sliderCont.cont), 30),
 
             LV_ANIM_TIMELINE_WRAPPER_END // 这个标志着结构体成员结束，不能省略，在下面函数lv_anim_timeline_add_wrapper的轮询中做判断条件
         };
@@ -157,12 +159,16 @@ void View::appearAnimStart(bool reverse) // 开始开场动画
 {
     lv_anim_timeline_set_reverse(ui.anim_timeline, reverse);
     lv_anim_timeline_start(ui.anim_timeline);
+
+    ui.isBtnContCollapsed = reverse;
 }
 
 void View::appearAnimSlider(bool reverse) // 音量条/亮度条动画
 {
     lv_anim_timeline_set_reverse(ui.anim_timelineSlider, reverse);
     lv_anim_timeline_start(ui.anim_timelineSlider);
+
+    ui.isSliderContCollapsed = reverse;
 }
 
 void View::appearAnimClick(bool reverse) // 按钮动画
@@ -175,6 +181,8 @@ void View::appearAnimTop(bool reverse) // topCont动画
 {
     lv_anim_timeline_set_reverse(ui.anim_timelineTop, reverse);
     lv_anim_timeline_start(ui.anim_timelineTop);
+
+    ui.isTopContCollapsed = reverse;
 }
 
 void View::AttachEvent(lv_obj_t *obj)
@@ -308,7 +316,7 @@ void View::sliderContCreate(lv_obj_t *obj)
     lv_obj_remove_style_all(sliderCont);
     lv_obj_set_size(sliderCont, lv_pct(30), lv_pct(40));
     lv_obj_clear_flag(sliderCont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_bg_opa(sliderCont, LV_OPA_80, 0);
+    lv_obj_set_style_bg_opa(sliderCont, LV_OPA_90, 0);
     lv_obj_set_style_bg_color(sliderCont, lv_color_hex(0xeeeeee), 0);
     lv_obj_align(sliderCont, LV_ALIGN_TOP_RIGHT, -20, 60);
     lv_obj_set_style_radius(sliderCont, 10, LV_PART_MAIN);
@@ -365,7 +373,7 @@ void View::topContCreate(lv_obj_t *obj)
 {
     lv_obj_t *cont = lv_obj_create(obj);
     lv_obj_remove_style_all(cont);
-    lv_obj_set_size(cont, lv_pct(95), lv_pct(8));
+    lv_obj_set_size(cont, lv_pct(90), lv_pct(8));
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_bg_opa(cont, LV_OPA_90, 0);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0xeeeeee), 0);
@@ -377,12 +385,26 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -5, 4);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0); // 设置按钮默认的颜色
     ui.topCont.cancelBtn = btn;
-    lv_obj_t *btnLabel = lv_label_create(ui.topCont.cancelBtn);
-    lv_obj_remove_style_all(btnLabel);
-    lv_obj_set_style_text_font(btnLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(btnLabel, lv_color_hex(0xffffff), 0);
-    lv_obj_center(btnLabel);
-    lv_label_set_text_fmt(btnLabel, "%s", "x");
+    lv_obj_t *cancelBtnLabel = lv_label_create(ui.topCont.cancelBtn);
+    lv_obj_remove_style_all(cancelBtnLabel);
+    lv_obj_set_style_text_font(cancelBtnLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(cancelBtnLabel, lv_color_hex(0xffffff), 0);
+    lv_obj_center(cancelBtnLabel);
+    lv_label_set_text_fmt(cancelBtnLabel, "%s", "x");
+
+    btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
+    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -40, 4);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), 0);                // 设置按钮默认的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x646abb), LV_STATE_USER_1);
+    ui.topCont.lockBtn = btn;
+    lv_obj_t *lockBtnLabel = lv_label_create(ui.topCont.lockBtn);
+    lv_obj_remove_style_all(lockBtnLabel);
+    lv_obj_set_style_text_font(lockBtnLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(lockBtnLabel, lv_color_hex(0xffffff), 0);
+    lv_obj_center(lockBtnLabel);
+    lv_label_set_text_fmt(lockBtnLabel, "%s", "锁定");
+    ui.topCont.lockLabel = lockBtnLabel;
 
     lv_obj_t *videoNameLabel = lv_label_create(cont);
     lv_obj_remove_style_all(videoNameLabel);
@@ -390,7 +412,6 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_set_style_text_color(videoNameLabel, lv_color_black(), 0);
     lv_obj_center(videoNameLabel);
     lv_label_set_text_fmt(videoNameLabel, "%s", "videoName");
-
     ui.topCont.videoNameLabel = videoNameLabel;
 }
 
@@ -669,6 +690,21 @@ void View::buttonEventHandler(lv_event_t *event)
 
             lv_label_set_text_fmt(instance->ui.funcCont.fullScreenLabel, "%s", state ? "全" : "半");
         }
+        else if (obj == instance->ui.topCont.lockBtn)
+        {
+            bool state = lv_obj_has_state(obj, LV_STATE_USER_1);
+            if (state)
+            {
+                lv_obj_clear_state(obj, LV_STATE_USER_1);
+                instance->appearAnimStart(false);
+            }
+            else
+            {
+                lv_obj_add_state(obj, LV_STATE_USER_1);
+                instance->appearAnimStart(true);
+            }
+            lv_label_set_text_fmt(instance->ui.topCont.lockLabel, "%s", state ? "解锁" : "锁定");
+        }
         else if (obj == instance->ui.topCont.cancelBtn)
         {
             instance->_opts.exitCb();
@@ -696,6 +732,9 @@ void View::sliderEventHandler(lv_event_t *event)
         {
             char cmd[512];
             int value = lv_slider_get_value(obj);
+
+            value = value >= 10 ? value : 10;
+            
             memset(cmd, sizeof(cmd), 0);
             snprintf(cmd, sizeof(cmd) - 1, "cd /sys/kernel/debug/dispdbg; echo lcd0 > name; echo setbl > command; echo %d > param; echo 1 > start\n", value);
             system(cmd);
@@ -784,22 +823,26 @@ void View::onEvent(lv_event_t *event)
             {
             case LV_DIR_LEFT:
                 printf("[View] LV_DIR_LEFT!\n");
-                instance->appearAnimSlider(true);
+                if (!instance->ui.isSliderContCollapsed)
+                    instance->appearAnimSlider(true);
 
                 break;
             case LV_DIR_RIGHT:
                 printf("[View] LV_DIR_RIGHT!\n");
-                instance->appearAnimSlider(false);
+                if (instance->ui.isSliderContCollapsed)
+                    instance->appearAnimSlider(false);
 
                 break;
             case LV_DIR_TOP:
                 printf("[View] LV_DIR_TOP!\n");
-                instance->appearAnimTop(true);
+                if (!instance->ui.isTopContCollapsed)
+                    instance->appearAnimTop(true);
 
                 break;
             case LV_DIR_BOTTOM:
                 printf("[View] LV_DIR_BOTTOM!\n");
-                instance->appearAnimTop(false);
+                if (instance->ui.isTopContCollapsed)
+                    instance->appearAnimTop(false);
 
                 // instance->_opts.exitCb();
                 break;
