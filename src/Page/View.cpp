@@ -60,6 +60,7 @@ void View::create(Operations &opts)
         {
             ANIM_DEF(0, ui.sliderCont.cont, x, lv_obj_get_x_aligned(ui.sliderCont.cont), 150),
             ANIM_DEF(0, ui.sliderCont.cont, y, lv_obj_get_y_aligned(ui.sliderCont.cont), -50),
+            // ANIM_DEF(0, ui.sliderCont.cont, y, lv_obj_get_y_aligned(ui.sliderCont.cont), -50),
 
             LV_ANIM_TIMELINE_WRAPPER_END // 这个标志着结构体成员结束，不能省略，在下面函数lv_anim_timeline_add_wrapper的轮询中做判断条件
         };
@@ -67,7 +68,7 @@ void View::create(Operations &opts)
 
     lv_anim_timeline_wrapper_t wrapperTop[] =
         {
-            ANIM_DEF(0, ui.topCont.cont, y, -20, lv_obj_get_x_aligned(ui.btnCont.cont)),
+            ANIM_DEF(0, ui.topCont.cont, y, -40, lv_obj_get_x_aligned(ui.btnCont.cont)),
             ANIM_DEF(0, ui.topCont.cont, width, 20, lv_obj_get_width(ui.btnCont.cont)),
 
             LV_ANIM_TIMELINE_WRAPPER_END // 这个标志着结构体成员结束，不能省略，在下面函数lv_anim_timeline_add_wrapper的轮询中做判断条件
@@ -775,31 +776,50 @@ void View::onEvent(lv_event_t *event)
     lv_obj_t *obj = lv_event_get_current_target(event);
     lv_event_code_t code = lv_event_get_code(event);
 
-    if (code == LV_EVENT_GESTURE)
+    if (obj == lv_scr_act())
     {
-        switch (lv_indev_get_gesture_dir(lv_indev_get_act()))
+        if (code == LV_EVENT_GESTURE)
         {
-        case LV_DIR_LEFT:
-            printf("[View] LV_DIR_LEFT!\n");
-            instance->appearAnimSlider(true);
+            switch (lv_indev_get_gesture_dir(lv_indev_get_act()))
+            {
+            case LV_DIR_LEFT:
+                printf("[View] LV_DIR_LEFT!\n");
+                instance->appearAnimSlider(true);
 
-            break;
-        case LV_DIR_RIGHT:
-            printf("[View] LV_DIR_RIGHT!\n");
-            instance->appearAnimSlider(false);
+                break;
+            case LV_DIR_RIGHT:
+                printf("[View] LV_DIR_RIGHT!\n");
+                instance->appearAnimSlider(false);
 
-            break;
-        case LV_DIR_TOP:
-            printf("[View] LV_DIR_TOP!\n");
+                break;
+            case LV_DIR_TOP:
+                printf("[View] LV_DIR_TOP!\n");
+                instance->appearAnimTop(true);
 
-            break;
-        case LV_DIR_BOTTOM:
-            printf("[View] LV_DIR_BOTTOM!\n");
-            // instance->_opts.exitCb();
-            break;
+                break;
+            case LV_DIR_BOTTOM:
+                printf("[View] LV_DIR_BOTTOM!\n");
+                instance->appearAnimTop(false);
 
-        default:
-            break;
+                // instance->_opts.exitCb();
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        if (code == LV_EVENT_SHORT_CLICKED)
+        {
+            // TODO ...
+            // static bool state = false;
+
+            // if (state)
+            //     instance->appearAnimTop(false);
+            // else
+            //     instance->appearAnimTop(true);
+
+            // state = !state;
         }
     }
 }
