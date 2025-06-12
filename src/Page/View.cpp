@@ -355,7 +355,7 @@ void View::listContCreate(lv_obj_t *obj)
     lv_obj_remove_style_all(listCont);
     lv_obj_set_size(listCont, lv_pct(80), lv_pct(50));
     // lv_obj_clear_flag(listCont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_bg_opa(listCont, LV_OPA_70, 0);
+    lv_obj_set_style_bg_opa(listCont, LV_OPA_60, 0);
     lv_obj_set_style_bg_color(listCont, lv_color_hex(0x6a8d6d), 0);
     lv_obj_align(listCont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(listCont, 16, LV_PART_MAIN);
@@ -515,7 +515,7 @@ lv_obj_t *View::listCreate(const char *name, const void *img_src)
     lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW);
 
     lv_obj_t *img = lv_img_create(obj);
-    lv_img_set_src(img, LV_SYMBOL_PLAY);
+    lv_img_set_src(img, LV_SYMBOL_VIDEO);
 
     lv_obj_t *label = lv_label_create(obj);
     // lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
@@ -630,22 +630,26 @@ void View::buttonEventHandler(lv_event_t *event)
 
             if (instance->_isPlaying == false)
             {
-                instance->_isPlaying = true;
-                lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PAUSE, 0);
+                // if video load is not empty
+                if (strcmp(lv_label_get_text(instance->ui.topCont.videoNameLabel), "videoName") != 0)
+                {
+                    instance->_isPlaying = true;
+                    lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PAUSE, 0);
 
-                lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_TRANSP, 0);
-                lv_obj_add_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
+                    lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_TRANSP, 0);
+                    lv_obj_add_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
 
-                lv_disp_get_default()->driver->screen_transp = 1;
-                lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_TRANSP);
-                /* Empty the buffer, not emptying will cause the UI to be opaque */
-                lv_memset_00(lv_disp_get_default()->driver->draw_buf->buf_act,
-                             lv_disp_get_default()->driver->draw_buf->size * sizeof(lv_color32_t));
-                lv_style_set_bg_opa(&style_scr_act, LV_OPA_TRANSP);
-                lv_obj_report_style_change(&style_scr_act);
+                    lv_disp_get_default()->driver->screen_transp = 1;
+                    lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_TRANSP);
+                    /* Empty the buffer, not emptying will cause the UI to be opaque */
+                    lv_memset_00(lv_disp_get_default()->driver->draw_buf->buf_act,
+                                 lv_disp_get_default()->driver->draw_buf->size * sizeof(lv_color32_t));
+                    lv_style_set_bg_opa(&style_scr_act, LV_OPA_TRANSP);
+                    lv_obj_report_style_change(&style_scr_act);
 
-                if (instance->_opts.playCb != nullptr)
-                    instance->_opts.playCb(NULL); // 继续播放
+                    if (instance->_opts.playCb != nullptr)
+                        instance->_opts.playCb(NULL); // 继续播放
+                }
             }
             else
             {
@@ -720,24 +724,21 @@ void View::buttonEventHandler(lv_event_t *event)
         }
         else if (obj == instance->ui.topCont.listBtn)
         {
-            if (instance->_isPlaying)
-            {
-                instance->_isPlaying = false;
-                lv_obj_set_style_bg_img_src(instance->ui.btnCont.btn, LV_SYMBOL_PLAY, 0);
+            instance->_isPlaying = false;
+            lv_obj_set_style_bg_img_src(instance->ui.btnCont.btn, LV_SYMBOL_PLAY, 0);
 
-                lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
-                lv_obj_clear_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
+            lv_obj_clear_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
 
-                lv_disp_get_default()->driver->screen_transp = 0;
-                lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
-                lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
-                lv_obj_report_style_change(&style_scr_act);
+            lv_disp_get_default()->driver->screen_transp = 0;
+            lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
+            lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
+            lv_obj_report_style_change(&style_scr_act);
 
-                lv_label_set_text_fmt(instance->ui.funcCont.speedLabel, "x%d", 1);
+            lv_label_set_text_fmt(instance->ui.funcCont.speedLabel, "x%d", 1);
 
-                if (instance->_opts.pauseCb != nullptr)
-                    instance->_opts.pauseCb(); // 暂停播放
-            }
+            if (instance->_opts.pauseCb != nullptr)
+                instance->_opts.pauseCb(); // 暂停播放
         }
         else if (obj == instance->ui.topCont.cancelBtn)
         {
