@@ -351,24 +351,48 @@ void View::sliderContCreate(lv_obj_t *obj)
 
 void View::listContCreate(lv_obj_t *obj)
 {
-    lv_obj_t *listCont = lv_list_create(obj);
-    lv_obj_remove_style_all(listCont);
-    lv_obj_set_size(listCont, lv_pct(80), lv_pct(50));
-    // lv_obj_clear_flag(listCont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_style_bg_opa(listCont, LV_OPA_60, 0);
-    lv_obj_set_style_bg_color(listCont, lv_color_hex(0x6a8d6d), 0);
-    lv_obj_align(listCont, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style_radius(listCont, 16, LV_PART_MAIN);
-    lv_obj_set_style_pad_row(listCont, 20, LV_PART_MAIN);
+    lv_obj_t *cont = lv_obj_create(obj);
+    lv_obj_remove_style_all(cont);
+    lv_obj_set_size(cont, lv_pct(80), lv_pct(50));
+    lv_obj_set_style_bg_opa(cont, LV_OPA_80, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(cont, lv_color_hex(0x9cd1bb), LV_PART_MAIN);
+    // lv_obj_set_style_bg_img_src(cont, ResourcePool::GetImage("popcat_open"), LV_PART_MAIN); // 设置背景图片
+    lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(cont, 16, LV_PART_MAIN);
 
-    lv_obj_set_flex_flow(listCont, LV_FLEX_FLOW_COLUMN);
-    // lv_obj_set_flex_align(listCont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_scroll_dir(listCont, LV_DIR_VER);
-    lv_obj_set_scroll_snap_y(listCont, LV_SCROLL_SNAP_NONE);
-    lv_obj_set_scrollbar_mode(listCont, LV_SCROLLBAR_MODE_ON); // 设置滚动条是否显示：是
+    lv_obj_set_style_pad_all(cont, 25, LV_PART_MAIN); // 设置每一个item的宽度
+    lv_obj_set_style_pad_row(cont, 20, LV_PART_MAIN); // 设置每一个item的间距
 
-    ui.listCont.cont = listCont;
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);       // 设置弹性布局，item竖着排
+    lv_obj_set_scroll_dir(cont, LV_DIR_VER);               // 设置画布滚动方向：垂直滚动
+    lv_obj_set_scroll_snap_y(cont, LV_SCROLL_SNAP_CENTER); // 设置在垂直滚动结束时捕捉子元素的位置：人话：打开菜单第一个item的位置，现在是居中
+    lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_ON); // 设置滚动条是否显示：是
+
+    ui.listCont.cont = cont;
 }
+
+// void View::listContCreate(lv_obj_t *obj)
+// {
+//     lv_obj_t *listCont = lv_list_create(obj);
+//     lv_obj_remove_style_all(listCont);
+//     lv_obj_set_size(listCont, lv_pct(80), lv_pct(50));
+//     // lv_obj_clear_flag(listCont, LV_OBJ_FLAG_SCROLLABLE);
+//     lv_obj_set_style_bg_opa(listCont, LV_OPA_60, 0);
+//     lv_obj_set_style_bg_color(listCont, lv_color_hex(0x6a8d6d), 0);
+//     lv_obj_align(listCont, LV_ALIGN_CENTER, 0, 0);
+//     lv_obj_set_style_radius(listCont, 16, LV_PART_MAIN);
+//     lv_obj_set_style_pad_row(listCont, 20, LV_PART_MAIN);
+
+//     lv_obj_set_flex_flow(listCont, LV_FLEX_FLOW_COLUMN);
+//     // lv_obj_set_flex_align(listCont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+//     lv_obj_set_scroll_dir(listCont, LV_DIR_VER);
+//     lv_obj_set_scroll_snap_y(listCont, LV_SCROLL_SNAP_NONE);
+//     lv_obj_set_scrollbar_mode(listCont, LV_SCROLLBAR_MODE_ON); // 设置滚动条是否显示：是
+
+//     // lv_obj_set_style_bg_opa(listCont, LV_OPA_100, LV_PART_SCROLLBAR);
+
+//     ui.listCont.cont = listCont;
+// }
 
 void View::topContCreate(lv_obj_t *obj)
 {
@@ -509,27 +533,84 @@ lv_obj_t *View::listCreate(const char *name, const void *img_src)
     // lv_obj_t *obj = lv_list_add_btn(ui.listCont.cont, img_src, name);
     // lv_obj_t *obj = lv_list_add_btn(ui.listCont.cont, LV_SYMBOL_PLAY, name);
 
-    lv_obj_t *obj = lv_obj_class_create_obj(&lv_list_btn_class, ui.listCont.cont);
-    lv_obj_class_init_obj(obj);
-    lv_obj_set_size(obj, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW);
+    lv_obj_t *obj = lv_obj_create(ui.listCont.cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, LV_PCT(98), LV_PCT(23));
+    lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_60, LV_STATE_DEFAULT); // 设置背景透明
+    lv_obj_set_style_bg_opa(obj, LV_OPA_80, LV_STATE_PRESSED); // 设置背景透明度(按下时)
+    lv_obj_set_style_width(obj, lv_pct(90), LV_STATE_PRESSED); // 设置button按下时的长宽
+    lv_obj_set_style_height(obj, lv_pct(16), LV_STATE_PRESSED);
+    lv_obj_set_style_radius(obj, 9, 0); // 按钮画圆角
+
+    lv_obj_set_style_shadow_width(obj, 10, 0);
+    lv_obj_set_style_shadow_ofs_x(obj, 5, 0);
+    lv_obj_set_style_shadow_ofs_y(obj, 5, 0);
+    lv_obj_set_style_shadow_color(obj, lv_color_hex(0xd6dff5), 0);
 
     lv_obj_t *img = lv_img_create(obj);
     lv_img_set_src(img, LV_SYMBOL_VIDEO);
+    lv_obj_align(img, LV_ALIGN_LEFT_MID, 10, 0);
 
     lv_obj_t *label = lv_label_create(obj);
     // lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_font(label, ui.fontCont.font20.font, 0);
     lv_label_set_text(label, name);
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_flex_grow(label, 1);
+    lv_obj_align_to(label, img, LV_ALIGN_OUT_RIGHT_MID, 20, 0);
 
-    lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_STATE_DEFAULT); // 设置背景透明
-    lv_obj_set_style_bg_opa(obj, LV_OPA_30, LV_STATE_PRESSED);     // 设置背景透明度(按下时)
-    lv_obj_set_style_text_color(obj, lv_color_hex(0x282a3a), LV_STATE_DEFAULT);
+    // anim
+    static lv_style_transition_dsc_t tran;                                                                       // lv_style_transition_dsc_t用于描述样式过渡的属性。这个数据结构用于定义样式过渡的动画效果，包括过渡的时间、延迟、缓动函数等属性
+    static const lv_style_prop_t prop[] = {LV_STYLE_WIDTH, LV_STYLE_HEIGHT, LV_STYLE_BG_OPA, LV_STYLE_PROP_INV}; // lv_style_prop_t枚举类型，用于表示样式的属性。这个枚举类型定义了一系列的样式属性，例如背景颜色、边框宽度、文本颜色等
+    lv_style_transition_dsc_init(
+        &tran,
+        prop,
+        lv_anim_path_ease_out,
+        150,
+        0,
+        nullptr);
+    lv_obj_set_style_transition(obj, &tran, LV_STATE_PRESSED);
+    lv_obj_update_layout(obj);
 
     return obj;
 }
+
+// lv_obj_t *View::listCreate(const char *name, const void *img_src)
+// {
+//     // lv_obj_t *obj = lv_list_add_btn(ui.listCont.cont, img_src, name);
+//     // lv_obj_t *obj = lv_list_add_btn(ui.listCont.cont, LV_SYMBOL_PLAY, name);
+
+//     lv_obj_t *obj = lv_obj_class_create_obj(&lv_list_btn_class, ui.listCont.cont);
+//     lv_obj_class_init_obj(obj);
+//     lv_obj_set_size(obj, LV_PCT(98), LV_SIZE_CONTENT);
+//     lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW);
+//     lv_obj_set_style_radius(obj, 9, 0);                                       // 按钮画圆角
+//     lv_obj_set_style_radius(obj, 9, LV_STATE_PRESSED);                        // 按钮画圆角
+//     lv_obj_set_style_bg_color(obj, lv_color_hex(0xeeeeee), 0);                // 设置按钮默认的颜色
+//     lv_obj_set_style_bg_color(obj, lv_color_hex(0xeeeeee), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
+//                                                                               // lv_obj_align_to(obj, ui.listCont.cont, LV_ALIGN_RIGHT_MID, 10, 0);
+//     lv_obj_set_style_shadow_width(obj, 10, 0);
+//     lv_obj_set_style_shadow_ofs_x(obj, 5, 0);
+//     lv_obj_set_style_shadow_ofs_y(obj, 5, 0);
+//     lv_obj_set_style_shadow_color(obj, lv_color_hex(0xd6dff5), 0);
+
+//     lv_obj_t *img = lv_img_create(obj);
+//     lv_img_set_src(img, LV_SYMBOL_VIDEO);
+
+//     lv_obj_t *label = lv_label_create(obj);
+//     // lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
+//     lv_obj_set_style_text_font(label, ui.fontCont.font20.font, 0);
+//     lv_label_set_text(label, name);
+//     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+//     lv_obj_set_flex_grow(label, 1);
+
+//     lv_obj_set_style_bg_opa(obj, LV_OPA_60, LV_STATE_DEFAULT); // 设置背景透明
+//     lv_obj_set_style_bg_opa(obj, LV_OPA_80, LV_STATE_PRESSED); // 设置背景透明度(按下时)
+//     lv_obj_set_style_text_color(obj, lv_color_hex(0x282a3a), LV_STATE_DEFAULT);
+
+//     return obj;
+// }
 
 lv_obj_t *View::roundRectCreate(lv_obj_t *par, lv_coord_t x_ofs, lv_coord_t y_ofs)
 {

@@ -168,6 +168,7 @@ void *Model::threadProcHandler(void *arg)
 
     // 搜索并添加视频至播放列表
     model->searchVideo(VIDEO_DIR);
+    model->searchVideo(VIDEO_DIR);
     model->searchVideo(SD_VIDEO_DIR);
 
     while (!model->_threadExitFlag)
