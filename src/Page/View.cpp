@@ -30,6 +30,7 @@ void View::create(Operations &opts)
     lv_obj_add_event_cb(ui.funcCont.fullScreenBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.topCont.cancelBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.topCont.lockBtn, buttonEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.topCont.listBtn, buttonEventHandler, LV_EVENT_ALL, this);
 
     lv_obj_add_event_cb(ui.btnCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.volumeSlider, sliderEventHandler, LV_EVENT_ALL, this);
@@ -408,7 +409,8 @@ void View::topContCreate(lv_obj_t *obj)
 
     btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 5, 4);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0); // 设置按钮默认的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0);                // 设置按钮默认的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色
     ui.topCont.listBtn = btn;
     lv_obj_t *listBtnLabel = lv_label_create(ui.topCont.listBtn);
     lv_obj_remove_style_all(listBtnLabel);
@@ -650,13 +652,13 @@ void View::buttonEventHandler(lv_event_t *event)
                 instance->_isPlaying = false;
                 lv_obj_set_style_bg_img_src(obj, LV_SYMBOL_PLAY, 0);
 
-                lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
-                lv_obj_clear_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
+                // lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
+                // lv_obj_clear_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
 
-                lv_disp_get_default()->driver->screen_transp = 0;
-                lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
-                lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
-                lv_obj_report_style_change(&style_scr_act);
+                // lv_disp_get_default()->driver->screen_transp = 0;
+                // lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
+                // lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
+                // lv_obj_report_style_change(&style_scr_act);
 
                 lv_label_set_text_fmt(instance->ui.funcCont.speedLabel, "x%d", 1);
 
@@ -715,6 +717,27 @@ void View::buttonEventHandler(lv_event_t *event)
                 instance->appearAnimStart(true);
             }
             lv_label_set_text_fmt(instance->ui.topCont.lockLabel, "%s", state ? "解锁" : "锁定");
+        }
+        else if (obj == instance->ui.topCont.listBtn)
+        {
+            if (instance->_isPlaying)
+            {
+                instance->_isPlaying = false;
+                lv_obj_set_style_bg_img_src(instance->ui.btnCont.btn, LV_SYMBOL_PLAY, 0);
+
+                lv_obj_set_style_bg_img_opa(instance->ui.cont, LV_OPA_COVER, 0);
+                lv_obj_clear_flag(instance->ui.listCont.cont, LV_OBJ_FLAG_HIDDEN);
+
+                lv_disp_get_default()->driver->screen_transp = 0;
+                lv_disp_set_bg_opa(lv_disp_get_default(), LV_OPA_COVER);
+                lv_style_set_bg_opa(&style_scr_act, LV_OPA_COVER);
+                lv_obj_report_style_change(&style_scr_act);
+
+                lv_label_set_text_fmt(instance->ui.funcCont.speedLabel, "x%d", 1);
+
+                if (instance->_opts.pauseCb != nullptr)
+                    instance->_opts.pauseCb(); // 暂停播放
+            }
         }
         else if (obj == instance->ui.topCont.cancelBtn)
         {
