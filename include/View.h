@@ -65,7 +65,6 @@ namespace Page
                 lv_obj_t *speedBtn;      // 倍速
                 lv_obj_t *rotateBtn;     // 翻转屏幕
                 lv_obj_t *loopBtn;       // 循环
-                lv_obj_t *listBtn;       // 播放列表
                 lv_obj_t *fullScreenBtn; // 视频全屏
                 lv_obj_t *funcBtn;       // Function Button
 
@@ -84,6 +83,7 @@ namespace Page
                 lv_obj_t *cont;
                 lv_obj_t *cancelBtn; // to cancel this app
                 lv_obj_t *lockBtn;   // to lock the screen
+                lv_obj_t *listBtn;   // 播放列表
 
                 lv_obj_t *videoNameLabel; // to show the video name which is playing
                 lv_obj_t *lockLabel;      // to show the lock screen label

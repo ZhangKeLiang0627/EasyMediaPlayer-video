@@ -327,7 +327,7 @@ void View::sliderContCreate(lv_obj_t *obj)
     lv_obj_set_style_bg_opa(ui.sliderCont.volumeSlider, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui.sliderCont.volumeSlider, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_PRESSED);
     lv_obj_set_style_border_width(ui.sliderCont.volumeSlider, 0, LV_PART_KNOB);
-    lv_obj_set_size(ui.sliderCont.volumeSlider, lv_pct(40), lv_pct(80));
+    lv_obj_set_size(ui.sliderCont.volumeSlider, lv_pct(40), lv_pct(90));
     lv_obj_align(ui.sliderCont.volumeSlider, LV_ALIGN_LEFT_MID, 10, 0);
     lv_obj_t *imgVloume = lv_img_create(ui.sliderCont.volumeSlider);
     lv_img_set_src(imgVloume, LV_SYMBOL_VOLUME_MAX);
@@ -336,7 +336,7 @@ void View::sliderContCreate(lv_obj_t *obj)
     lv_obj_set_style_bg_opa(ui.sliderCont.brightnessSlider, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui.sliderCont.brightnessSlider, LV_OPA_TRANSP, LV_PART_KNOB | LV_STATE_PRESSED);
     lv_obj_set_style_border_width(ui.sliderCont.brightnessSlider, 0, LV_PART_KNOB);
-    lv_obj_set_size(ui.sliderCont.brightnessSlider, lv_pct(40), lv_pct(80));
+    lv_obj_set_size(ui.sliderCont.brightnessSlider, lv_pct(40), lv_pct(90));
     lv_obj_align(ui.sliderCont.brightnessSlider, LV_ALIGN_RIGHT_MID, -10, 0);
     lv_obj_t *imgBrightness = lv_img_create(ui.sliderCont.brightnessSlider);
     lv_img_set_src(imgBrightness, LV_SYMBOL_EYE_OPEN);
@@ -405,6 +405,17 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_center(lockBtnLabel);
     lv_label_set_text_fmt(lockBtnLabel, "%s", "锁定");
     ui.topCont.lockLabel = lockBtnLabel;
+
+    btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
+    lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 5, 4);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0); // 设置按钮默认的颜色
+    ui.topCont.listBtn = btn;
+    lv_obj_t *listBtnLabel = lv_label_create(ui.topCont.listBtn);
+    lv_obj_remove_style_all(listBtnLabel);
+    lv_obj_set_style_text_font(listBtnLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(listBtnLabel, lv_color_hex(0xffffff), 0);
+    lv_obj_center(listBtnLabel);
+    lv_label_set_text_fmt(listBtnLabel, "%s", "列表");
 
     lv_obj_t *videoNameLabel = lv_label_create(cont);
     lv_obj_remove_style_all(videoNameLabel);
@@ -734,7 +745,7 @@ void View::sliderEventHandler(lv_event_t *event)
             int value = lv_slider_get_value(obj);
 
             value = value >= 10 ? value : 10;
-            
+
             memset(cmd, sizeof(cmd), 0);
             snprintf(cmd, sizeof(cmd) - 1, "cd /sys/kernel/debug/dispdbg; echo lcd0 > name; echo setbl > command; echo %d > param; echo 1 > start\n", value);
             system(cmd);
