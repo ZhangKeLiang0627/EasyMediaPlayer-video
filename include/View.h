@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../libs/lvgl/lvgl.h"
-#include "lv_obj_ext_func.h"
-#include "lv_anim_timeline_wrapper.h"
+#include "../utils/lv_ext/lv_obj_ext_func.h"
+#include "../utils/lv_ext/lv_anim_timeline_wrapper.h"
 #include <functional>
 
 namespace Page

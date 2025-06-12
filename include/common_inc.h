@@ -7,12 +7,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
-#include <string> 
+#include <string>
 
 #include "../libs/lvgl/lvgl.h"
 #include "../libs/lv_drivers/display/sunxifb.h"
 #include "../libs/lv_drivers/indev/evdev.h"
 #include "MediaPlayer.h"
-#include "hal.h"
+#include "HAL.h"
 
 extern pthread_mutex_t lv_mutex;

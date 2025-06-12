@@ -1,4 +1,4 @@
-#include "hal.h"
+#include "HAL.h"
 
 /* File system funtion */
 static void *fs_open(lv_fs_drv_t *drv, const char *path, lv_fs_mode_t mode);
