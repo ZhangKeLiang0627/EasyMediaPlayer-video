@@ -447,8 +447,11 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_remove_style_all(videoNameLabel);
     lv_obj_set_style_text_font(videoNameLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(videoNameLabel, lv_color_black(), 0);
-    lv_obj_center(videoNameLabel);
-    lv_label_set_text_fmt(videoNameLabel, "%s", "videoName");
+    lv_label_set_long_mode(videoNameLabel, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_align(videoNameLabel, LV_ALIGN_CENTER, 0, 0);
+    lv_label_set_text_fmt(videoNameLabel, "%s", "                     videoName"); // 空格是为了居中
+    lv_obj_set_size(videoNameLabel, lv_pct(60), LV_SIZE_CONTENT);
+
     ui.topCont.videoNameLabel = videoNameLabel;
 }
 
@@ -540,8 +543,8 @@ lv_obj_t *View::listCreate(const char *name, const void *img_src)
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_60, LV_STATE_DEFAULT); // 设置背景透明
     lv_obj_set_style_bg_opa(obj, LV_OPA_80, LV_STATE_PRESSED); // 设置背景透明度(按下时)
-    lv_obj_set_style_width(obj, lv_pct(90), LV_STATE_PRESSED); // 设置button按下时的长宽
-    lv_obj_set_style_height(obj, lv_pct(16), LV_STATE_PRESSED);
+    lv_obj_set_style_width(obj, lv_pct(93), LV_STATE_PRESSED); // 设置button按下时的长宽
+    // lv_obj_set_style_height(obj, lv_pct(16), LV_STATE_PRESSED);
     lv_obj_set_style_radius(obj, 9, 0); // 按钮画圆角
 
     lv_obj_set_style_shadow_width(obj, 10, 0);
@@ -554,6 +557,7 @@ lv_obj_t *View::listCreate(const char *name, const void *img_src)
     lv_obj_align(img, LV_ALIGN_LEFT_MID, 10, 0);
 
     lv_obj_t *label = lv_label_create(obj);
+    lv_obj_set_size(label, lv_pct(80), LV_SIZE_CONTENT);
     // lv_obj_set_style_text_font(label, &lv_font_montserrat_16, 0);
     lv_obj_set_style_text_font(label, ui.fontCont.font20.font, 0);
     lv_label_set_text(label, name);
