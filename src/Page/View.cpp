@@ -385,7 +385,9 @@ void View::topContCreate(lv_obj_t *obj)
 
     lv_obj_t *btn = btnCreate(cont, nullptr, 0, 0, 30, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -5, 4);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0); // 设置按钮默认的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0);                // 设置按钮默认的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), LV_STATE_FOCUSED); // 设置按钮在被按下时的颜色
     ui.topCont.cancelBtn = btn;
     lv_obj_t *cancelBtnLabel = lv_label_create(ui.topCont.cancelBtn);
     lv_obj_remove_style_all(cancelBtnLabel);
@@ -397,7 +399,8 @@ void View::topContCreate(lv_obj_t *obj)
     btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -40, 4);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), 0);                // 设置按钮默认的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色 // #ffd76d
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0x646abb), LV_STATE_USER_1);
     ui.topCont.lockBtn = btn;
     lv_obj_t *lockBtnLabel = lv_label_create(ui.topCont.lockBtn);
@@ -412,6 +415,7 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 5, 4);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0);                // 设置按钮默认的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
     ui.topCont.listBtn = btn;
     lv_obj_t *listBtnLabel = lv_label_create(ui.topCont.listBtn);
     lv_obj_remove_style_all(listBtnLabel);
