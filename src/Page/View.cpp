@@ -215,8 +215,8 @@ void View::contCreate(lv_obj_t *obj)
     lv_obj_set_size(cont, LV_HOR_RES, LV_VER_RES);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_bg_opa(cont, LV_OPA_COVER, 0);
-    lv_obj_set_style_bg_color(cont, lv_color_hex(0xcccccc), 0);
-    lv_obj_set_style_bg_img_src(cont, "S:./picture/cover/main1.bin", 0);
+    lv_obj_set_style_bg_color(cont, lv_color_hex(0xdf9fa4), 0);
+    // lv_obj_set_style_bg_img_src(cont, "S:./picture/cover/main1.bin", 0);
     lv_obj_set_style_bg_img_opa(cont, LV_OPA_COVER, 0);
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
     ui.cont = cont;
@@ -386,8 +386,8 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_t *btn = btnCreate(cont, nullptr, 0, 0, 30, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -5, 4);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0);                // 设置按钮默认的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), LV_STATE_FOCUSED); // 设置按钮在被按下时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_FOCUSED);  // 设置按钮在被按下时的颜色
     ui.topCont.cancelBtn = btn;
     lv_obj_t *cancelBtnLabel = lv_label_create(ui.topCont.cancelBtn);
     lv_obj_remove_style_all(cancelBtnLabel);
@@ -519,13 +519,13 @@ lv_obj_t *View::listCreate(const char *name, const void *img_src)
 
     lv_obj_t *obj = lv_obj_create(ui.listCont.cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, LV_PCT(98), LV_PCT(23));
+    lv_obj_set_size(obj, LV_PCT(98), LV_PCT(24));
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_60, LV_STATE_DEFAULT); // 设置背景透明
     lv_obj_set_style_bg_opa(obj, LV_OPA_80, LV_STATE_PRESSED); // 设置背景透明度(按下时)
-    // lv_obj_set_style_width(obj, lv_pct(93), LV_STATE_PRESSED); // 设置button按下时的长宽
-    // lv_obj_set_style_height(obj, lv_pct(16), LV_STATE_PRESSED);
+    lv_obj_set_style_width(obj, lv_pct(95), LV_STATE_PRESSED); // 设置button按下时的长宽
+    lv_obj_set_style_height(obj, lv_pct(21), LV_STATE_PRESSED);
     lv_obj_set_style_radius(obj, 9, 0); // 按钮画圆角
 
     lv_obj_set_style_shadow_width(obj, 10, 0);
@@ -546,17 +546,17 @@ lv_obj_t *View::listCreate(const char *name, const void *img_src)
     lv_obj_align_to(label, img, LV_ALIGN_OUT_RIGHT_MID, 20, 0);
 
     // anim
-    // static lv_style_transition_dsc_t tran;
-    // static const lv_style_prop_t prop[] = {LV_STYLE_WIDTH, LV_STYLE_HEIGHT, LV_STYLE_BG_OPA, LV_STYLE_PROP_INV};
-    // lv_style_transition_dsc_init(
-    //     &tran,
-    //     prop,
-    //     lv_anim_path_ease_out,
-    //     150,
-    //     0,
-    //     nullptr);
-    // lv_obj_set_style_transition(obj, &tran, LV_STATE_PRESSED);
-    // lv_obj_update_layout(obj);
+    static lv_style_transition_dsc_t tran;
+    static const lv_style_prop_t prop[] = {LV_STYLE_WIDTH, LV_STYLE_HEIGHT, LV_STYLE_PROP_INV};
+    lv_style_transition_dsc_init(
+        &tran,
+        prop,
+        lv_anim_path_ease_out,
+        150,
+        0,
+        nullptr);
+    lv_obj_set_style_transition(obj, &tran, LV_STATE_PRESSED);
+    lv_obj_update_layout(obj);
 
     return obj;
 }
