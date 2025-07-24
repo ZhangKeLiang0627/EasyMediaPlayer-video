@@ -16,10 +16,11 @@ int main(int argc, char *argv[])
     system("dd if=/dev/zero of=/dev/fb0");
     // 打开音频通路并设置音量
     system("amixer sset Headphone unmute");
-    system("amixer sset \"Headphone volume\" 5");
+    system("amixer sset \"Headphone volume\" 7");
 
     // TODO：解决重复挂载的问题
     system("mount /dev/sda /mnt/exUDISK/");
+    system("mount /dev/sda1 /mnt/exUDISK/");
 
     // Init HAL
     HAL::Init();

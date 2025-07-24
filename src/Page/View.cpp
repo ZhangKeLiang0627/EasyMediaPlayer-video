@@ -356,7 +356,7 @@ void View::listContCreate(lv_obj_t *obj)
     lv_obj_set_size(cont, lv_pct(80), lv_pct(50));
     lv_obj_set_style_bg_opa(cont, LV_OPA_80, LV_PART_MAIN);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0x9cd1bb), LV_PART_MAIN);
-    // lv_obj_set_style_bg_img_src(cont, ResourcePool::GetImage("popcat_open"), LV_PART_MAIN); // 设置背景图片
+    
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(cont, 16, LV_PART_MAIN);
 
