@@ -28,6 +28,7 @@ void View::create(Operations &opts)
     lv_obj_add_event_cb(ui.btnCont.btn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.funcCont.speedBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.funcCont.fullScreenBtn, buttonEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.funcCont.loopBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.topCont.cancelBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.topCont.lockBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.topCont.listBtn, buttonEventHandler, LV_EVENT_ALL, this);
@@ -356,7 +357,7 @@ void View::listContCreate(lv_obj_t *obj)
     lv_obj_set_size(cont, lv_pct(80), lv_pct(50));
     lv_obj_set_style_bg_opa(cont, LV_OPA_80, LV_PART_MAIN);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0x9cd1bb), LV_PART_MAIN);
-    
+
     lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(cont, 16, LV_PART_MAIN);
 
@@ -387,7 +388,7 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -5, 4);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0);                // 设置按钮默认的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_FOCUSED);  // 设置按钮在被按下时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_FOCUSED); // 设置按钮在被按下时的颜色
     ui.topCont.cancelBtn = btn;
     lv_obj_t *cancelBtnLabel = lv_label_create(ui.topCont.cancelBtn);
     lv_obj_remove_style_all(cancelBtnLabel);
@@ -738,6 +739,19 @@ void View::buttonEventHandler(lv_event_t *event)
             }
 
             lv_label_set_text_fmt(instance->ui.funcCont.fullScreenLabel, "%s", state ? "全" : "半");
+        }
+        else if (obj == instance->ui.funcCont.loopBtn)
+        {
+            static bool state = false;
+
+            if (instance->_opts.setLoopCb != nullptr)
+            {
+                // 单击改变循环播放状态
+                state = !state;
+                instance->_opts.setLoopCb(state);
+            }
+
+            lv_obj_set_style_bg_img_src(obj, state ? LV_SYMBOL_LOOP : LV_SYMBOL_CLOSE, 0);
         }
         else if (obj == instance->ui.topCont.lockBtn)
         {

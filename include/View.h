@@ -19,6 +19,7 @@ namespace Page
     using SetSpeedCb = std::function<void(int)>;
     using SetRotateCb = std::function<void(int)>;
     using SetFullScreenCb = std::function<void(bool)>;
+    using SetLoopCb = std::function<void(bool)>;
 
     struct Operations
     {
@@ -34,6 +35,7 @@ namespace Page
         SetSpeedCb setSpeedCb;           // 设置视频倍速回调函数
         SetRotateCb setRotateCb;         // 设置翻转屏幕回调函数
         SetFullScreenCb setFullScreenCb; // 设置视频是否全屏回调函数
+        SetLoopCb setLoopCb;             // 设置视频是否循环播放函数
     };
 
     class View

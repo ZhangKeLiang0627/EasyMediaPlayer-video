@@ -45,6 +45,7 @@ namespace Page
         void setSpeed(int speed);
         void setRotate(int angle);
         void setFullScreen(bool isFullScreen);
+        void setLoop(bool isLoop);
 
     public:
         Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex);

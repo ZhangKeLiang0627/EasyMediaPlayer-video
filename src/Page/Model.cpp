@@ -34,6 +34,7 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
     uiOpts.setSpeedCb = std::bind(&Model::setSpeed, this, std::placeholders::_1);
     uiOpts.setRotateCb = std::bind(&Model::setRotate, this, std::placeholders::_1);
     uiOpts.setFullScreenCb = std::bind(&Model::setFullScreen, this, std::placeholders::_1);
+    uiOpts.setLoopCb = std::bind(&Model::setLoop, this, std::placeholders::_1);
 
     _view.create(uiOpts);
 
@@ -345,4 +346,13 @@ void Model::setFullScreen(bool isFullScreen)
 {
     if (_mp != nullptr)
         _mp->SetFullScreen(isFullScreen);
+}
+
+/**
+ * @brief UI设置视频是否循环播放函数
+ */
+void Model::setLoop(bool isLoop)
+{
+    if (_mp != nullptr)
+        _mp->SetLoop(isLoop);
 }
