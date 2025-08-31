@@ -366,8 +366,15 @@ void View::listContCreate(lv_obj_t *obj)
 
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);       // 设置弹性布局，item竖着排
     lv_obj_set_scroll_dir(cont, LV_DIR_VER);               // 设置画布滚动方向：垂直滚动
-    lv_obj_set_scroll_snap_y(cont, LV_SCROLL_SNAP_CENTER); // 设置在垂直滚动结束时捕捉子元素的位置：人话：打开菜单第一个item的位置，现在是居中
-    lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_ON); // 设置滚动条是否显示：是
+    lv_obj_set_scroll_snap_y(cont, LV_SCROLL_SNAP_NONE); // 设置在垂直滚动结束时捕捉子元素的位置：人话：打开菜单第一个item的位置
+    lv_obj_set_style_clip_corner(cont, true, LV_PART_MAIN);
+
+    lv_obj_set_scrollbar_mode(cont, LV_SCROLLBAR_MODE_AUTO);
+    lv_obj_set_style_bg_color(cont, lv_color_hex(0xffffff), LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_opa(cont, LV_OPA_50, LV_PART_SCROLLBAR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(cont, LV_OPA_COVER, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
+    lv_obj_set_style_width(cont, 5, LV_PART_SCROLLBAR);
+    lv_obj_set_style_radius(cont, 255, LV_PART_SCROLLBAR);
 
     ui.listCont.cont = cont;
 }
@@ -428,10 +435,11 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_t *videoNameLabel = lv_label_create(cont);
     lv_obj_remove_style_all(videoNameLabel);
     lv_obj_set_style_text_font(videoNameLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(videoNameLabel, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
     lv_obj_set_style_text_color(videoNameLabel, lv_color_black(), 0);
     lv_label_set_long_mode(videoNameLabel, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_align(videoNameLabel, LV_ALIGN_CENTER, 0, 0);
-    lv_label_set_text_fmt(videoNameLabel, "%s", "                     videoName"); // 空格是为了居中
+    lv_label_set_text_fmt(videoNameLabel, "%s", "videoName"); // 空格是为了居中
     lv_obj_set_size(videoNameLabel, lv_pct(60), LV_SIZE_CONTENT);
 
     ui.topCont.videoNameLabel = videoNameLabel;
