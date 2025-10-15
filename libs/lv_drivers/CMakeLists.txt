@@ -4,6 +4,7 @@ project(lv_drivers HOMEPAGE_URL https://github.com/lvgl/lv_drivers/)
 
 # Option to build as shared library (as opposed to static), default: OFF
 option(BUILD_SHARED_LIBS "Build shared as library (as opposed to static)" OFF)
+option(LV_DRIVERS_USE_WAYLAND "Enable Wayland support in LVGL drivers" OFF)
 
 file(GLOB_RECURSE SOURCES ./*.c)
 
@@ -18,9 +19,17 @@ add_library(lvgl::drivers ALIAS lv_drivers)
 
 target_include_directories(lv_drivers SYSTEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-find_package(PkgConfig)
-pkg_check_modules(PKG_WAYLAND wayland-client wayland-cursor wayland-protocols xkbcommon)
-target_link_libraries(lv_drivers PUBLIC lvgl ${PKG_WAYLAND_LIBRARIES})
+# find_package(PkgConfig)
+# pkg_check_modules(PKG_WAYLAND wayland-client wayland-cursor wayland-protocols xkbcommon)
+# target_link_libraries(lv_drivers PUBLIC lvgl ${PKG_WAYLAND_LIBRARIES})
+
+if(LV_DRIVERS_USE_WAYLAND)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PKG_WAYLAND REQUIRED wayland-client wayland-cursor wayland-protocols xkbcommon)
+    target_link_libraries(lv_drivers PUBLIC lvgl ${PKG_WAYLAND_LIBRARIES})
+else()
+    target_link_libraries(lv_drivers PUBLIC lvgl)
+endif()
 
 if("${LIB_INSTALL_DIR}" STREQUAL "")
   set(LIB_INSTALL_DIR "lib")

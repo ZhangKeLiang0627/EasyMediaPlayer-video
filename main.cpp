@@ -1,4 +1,4 @@
-#include "../include/common_inc.h"
+#include "./inc/common_inc.h"
 #include "Model.h"
 
 pthread_mutex_t lv_mutex;
@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     while (1)
     {
         // ...
+        usleep(50000);
     }
 
     return 0;
