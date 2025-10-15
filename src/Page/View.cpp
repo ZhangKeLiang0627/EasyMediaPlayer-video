@@ -399,6 +399,7 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0);                // 设置按钮默认的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_FOCUSED); // 设置按钮在被按下时的颜色
+    lv_obj_set_ext_click_area(btn, 10);
     ui.topCont.cancelBtn = btn;
     lv_obj_t *cancelBtnLabel = lv_label_create(ui.topCont.cancelBtn);
     lv_obj_remove_style_all(cancelBtnLabel);
@@ -408,11 +409,12 @@ void View::topContCreate(lv_obj_t *obj)
     lv_label_set_text_fmt(cancelBtnLabel, "%s", "x");
 
     btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
-    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -40, 4);
+    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -50, 4);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), 0);                // 设置按钮默认的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色 // #ffd76d
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0x646abb), LV_STATE_USER_1);
+    lv_obj_set_ext_click_area(btn, 10);
     ui.topCont.lockBtn = btn;
     lv_obj_t *lockBtnLabel = lv_label_create(ui.topCont.lockBtn);
     lv_obj_remove_style_all(lockBtnLabel);
@@ -427,13 +429,14 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0);                // 设置按钮默认的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
+    lv_obj_set_ext_click_area(btn, 10);
     ui.topCont.listBtn = btn;
     lv_obj_t *listBtnLabel = lv_label_create(ui.topCont.listBtn);
     lv_obj_remove_style_all(listBtnLabel);
     lv_obj_set_style_text_font(listBtnLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(listBtnLabel, lv_color_hex(0xffffff), 0);
     lv_obj_center(listBtnLabel);
-    lv_label_set_text_fmt(listBtnLabel, "%s", "列表");
+    lv_label_set_text_fmt(listBtnLabel, "%s", "列表");    
 
     lv_obj_t *videoNameLabel = lv_label_create(cont);
     lv_obj_remove_style_all(videoNameLabel);
