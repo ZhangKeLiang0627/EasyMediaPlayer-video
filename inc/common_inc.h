@@ -12,6 +12,7 @@
 #include "../libs/lvgl/lvgl.h"
 #include "../libs/lv_drivers/display/sunxifb.h"
 #include "../libs/lv_drivers/indev/evdev.h"
+#include "../utils/log/log.h"
 #include "MediaPlayer.h"
 #include "HAL.h"
 

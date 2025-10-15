@@ -10,7 +10,10 @@ void *threadLvglHandler(void *);
 
 int main(int argc, char *argv[])
 {
-    printf("[Sys] EasyMediaPlayer begin!\n");
+    // log init
+    logger_init("/mnt/UDISK/logs/", "eMP.log", false, 1024 * 1024 * 1, 10);
+
+    log_info("[Sys] eMP_mainPage begin!");
 
     // 清除fb0
     system("dd if=/dev/zero of=/dev/fb0");

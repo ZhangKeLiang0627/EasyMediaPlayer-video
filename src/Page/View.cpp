@@ -354,11 +354,11 @@ void View::listContCreate(lv_obj_t *obj)
 {
     lv_obj_t *cont = lv_obj_create(obj);
     lv_obj_remove_style_all(cont);
-    lv_obj_set_size(cont, lv_pct(80), lv_pct(50));
+    lv_obj_set_size(cont, lv_pct(80), lv_pct(70));
     lv_obj_set_style_bg_opa(cont, LV_OPA_80, LV_PART_MAIN);
     lv_obj_set_style_bg_color(cont, lv_color_hex(0x9cd1bb), LV_PART_MAIN);
 
-    lv_obj_align(cont, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_align(cont, LV_ALIGN_CENTER, 0, -15);
     lv_obj_set_style_radius(cont, 16, LV_PART_MAIN);
 
     lv_obj_set_style_pad_all(cont, 25, LV_PART_MAIN); // 设置每一个item的宽度
@@ -375,6 +375,9 @@ void View::listContCreate(lv_obj_t *obj)
     lv_obj_set_style_bg_opa(cont, LV_OPA_COVER, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
     lv_obj_set_style_width(cont, 5, LV_PART_SCROLLBAR);
     lv_obj_set_style_radius(cont, 255, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_right(cont, 6, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_top(cont, 20, LV_PART_SCROLLBAR);
+    lv_obj_set_style_pad_bottom(cont, 20, LV_PART_SCROLLBAR);
 
     ui.listCont.cont = cont;
 }
@@ -528,13 +531,13 @@ lv_obj_t *View::listCreate(const char *name, const void *img_src)
 
     lv_obj_t *obj = lv_obj_create(ui.listCont.cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, LV_PCT(98), LV_PCT(24));
+    lv_obj_set_size(obj, LV_PCT(98), 45);
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_60, LV_STATE_DEFAULT); // 设置背景透明
     lv_obj_set_style_bg_opa(obj, LV_OPA_80, LV_STATE_PRESSED); // 设置背景透明度(按下时)
     lv_obj_set_style_width(obj, lv_pct(95), LV_STATE_PRESSED); // 设置button按下时的长宽
-    lv_obj_set_style_height(obj, lv_pct(21), LV_STATE_PRESSED);
+    lv_obj_set_style_height(obj, 50, LV_STATE_PRESSED);
     lv_obj_set_style_radius(obj, 9, 0); // 按钮画圆角
 
     lv_obj_set_style_shadow_width(obj, 10, 0);
