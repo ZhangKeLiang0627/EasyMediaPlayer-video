@@ -281,6 +281,7 @@ void View::funcContCreate(lv_obj_t *obj)
 
     lv_obj_t *btn = nullptr;
     btn = btnCreate(cont, nullptr, 6, -4, 30, 30);
+    lv_obj_set_ext_click_area(btn, 10);
     ui.funcCont.speedBtn = btn;
     lv_obj_t *label = lv_label_create(ui.funcCont.speedBtn);
     lv_obj_remove_style_all(label);
@@ -290,9 +291,11 @@ void View::funcContCreate(lv_obj_t *obj)
     ui.funcCont.speedLabel = label;
 
     btn = btnCreate(cont, LV_SYMBOL_LOOP, 47, -4, 30, 30);
+    lv_obj_set_ext_click_area(btn, 10);
     ui.funcCont.loopBtn = btn;
 
     btn = btnCreate(cont, nullptr, 88, -4, 30, 30);
+    lv_obj_set_ext_click_area(btn, 10);
     ui.funcCont.fullScreenBtn = btn;
     label = lv_label_create(ui.funcCont.fullScreenBtn);
     lv_obj_remove_style_all(label);
