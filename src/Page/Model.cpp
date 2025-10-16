@@ -1,4 +1,5 @@
 #include "Model.h"
+#include <cstring>
 
 #define VIDEO_DIR "/mnt/UDISK/video/"
 #define SD_VIDEO_DIR "/mnt/exUDISK/video/"
@@ -355,4 +356,26 @@ void Model::setLoop(bool isLoop)
 {
     if (_mp != nullptr)
         _mp->SetLoop(isLoop);
+}
+
+std::string Model::getExeDirectory(void)
+{
+    const size_t bufSize = 1024;
+    char exePath[bufSize] = {0};
+
+    const ssize_t len = readlink("/proc/self/exe", exePath, bufSize - 1);
+    if (len == -1)
+    {
+        throw std::runtime_error("Failed to read executable path");
+    }
+    exePath[len] = '\0';
+
+    char *lastSlash = std::strrchr(exePath, '/');
+    if (!lastSlash)
+    {
+        throw std::runtime_error("Invalid executable path format");
+    }
+    *lastSlash = '\0';
+
+    return std::string(exePath) + '/';
 }

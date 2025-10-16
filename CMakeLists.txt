@@ -16,6 +16,8 @@ message(STATUS "Host architecture: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 # 基础编译选项
+add_definitions(-DLODEPNG_NO_COMPILE_CPP) # for lv_snapshot/screenshot in C++
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -g0 -Wall -Wno-unused-function -Wno-unused-variable -Wno-return-type -Wno-sign-compare -Wno-memset-transposed-args")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS}")
 

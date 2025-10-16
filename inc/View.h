@@ -83,9 +83,10 @@ namespace Page
             struct
             {
                 lv_obj_t *cont;
-                lv_obj_t *cancelBtn; // to cancel this app
-                lv_obj_t *lockBtn;   // to lock the screen
-                lv_obj_t *listBtn;   // 播放列表
+                lv_obj_t *cancelBtn;     // to cancel this app
+                lv_obj_t *lockBtn;       // to lock the screen
+                lv_obj_t *listBtn;       // 播放列表
+                lv_obj_t *screenshotBtn; // 截图
 
                 lv_obj_t *videoNameLabel; // to show the video name which is playing
                 lv_obj_t *lockLabel;      // to show the lock screen label
@@ -138,6 +139,11 @@ namespace Page
         lv_obj_t *btnCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs, lv_coord_t y_ofs, lv_coord_t w = 50, lv_coord_t h = 50);
         lv_obj_t *sliderCreate(lv_obj_t *par, const void *img_src, lv_coord_t x_ofs = 0, lv_coord_t y_ofs = 0, int32_t min = 0, int32_t max = 255, int32_t val = 0);
         lv_obj_t *listCreate(const char *name, const void *img_src);
+        void sideTipsPopupCreate(lv_obj_t *obj, const char *tips);
+
+        // lv_screenshot
+        static void convertRGB2BGR(lv_img_dsc_t *snapshot);
+        static void screenshot(lv_obj_t *obj);
     };
 
 }

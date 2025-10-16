@@ -68,18 +68,18 @@ void HAL::Init(void)
     // Register the driver in LVGL and save the created input device object
     lv_indev_t *evdev_indev = lv_indev_drv_register(&indev_drv);
 
-    // file system initialization
-    static lv_fs_drv_t fs_drv;
-    lv_fs_drv_init(&fs_drv);
+    // // file system initialization
+    // static lv_fs_drv_t fs_drv;
+    // lv_fs_drv_init(&fs_drv);
 
-    fs_drv.letter = 'S';
-    fs_drv.open_cb = fs_open;
-    fs_drv.close_cb = fs_close;
-    fs_drv.read_cb = fs_read;
-    fs_drv.seek_cb = fs_seek;
-    fs_drv.tell_cb = fs_tell;
+    // fs_drv.letter = 'S';
+    // fs_drv.open_cb = fs_open;
+    // fs_drv.close_cb = fs_close;
+    // fs_drv.read_cb = fs_read;
+    // fs_drv.seek_cb = fs_seek;
+    // fs_drv.tell_cb = fs_tell;
 
-    lv_fs_drv_register(&fs_drv);
+    // lv_fs_drv_register(&fs_drv);
 
     // 注册退出回调函数
     install_signal_handler();
@@ -111,7 +111,7 @@ void signalExitCallback(int signal)
 
     sunxifb_free((void **)&lv_disp_get_default()->driver->draw_buf->buf1, (char *)"lv_examples");
     sunxifb_exit();
-    lv_deinit();
+    // lv_deinit();
 
     exit(0);
 }

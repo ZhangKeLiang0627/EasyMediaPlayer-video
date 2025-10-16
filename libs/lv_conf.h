@@ -46,7 +46,7 @@
  *=========================*/
 
 /*1: use custom malloc/free, 0: use the built-in `lv_mem_alloc()` and `lv_mem_free()`*/
-#define LV_MEM_CUSTOM 0
+#define LV_MEM_CUSTOM 1
 #if LV_MEM_CUSTOM == 0
     /*Size of the memory available for `lv_mem_alloc()` in bytes (>= 2kB)*/
     #define LV_MEM_SIZE (128U * 1024U)          /*[bytes]*/
@@ -607,10 +607,10 @@
 #endif
 
 /*API for open, read, etc*/
-#define LV_USE_FS_POSIX 0
+#define LV_USE_FS_POSIX 1
 #if LV_USE_FS_POSIX
-    #define LV_FS_POSIX_LETTER '\0'     /*Set an upper cased letter on which the drive will accessible (e.g. 'A')*/
-    #define LV_FS_POSIX_PATH ""         /*Set the working directory. File/directory paths will be appended to it.*/
+    #define LV_FS_POSIX_LETTER '/'     /*Set an upper cased letter on which the drive will accessible (e.g. 'A')*/
+    #define LV_FS_POSIX_PATH "/"         /*Set the working directory. File/directory paths will be appended to it.*/
     #define LV_FS_POSIX_CACHE_SIZE 0    /*>0 to cache this number of bytes in lv_fs_read()*/
 #endif
 
@@ -630,7 +630,7 @@
 #endif
 
 /*PNG decoder library*/
-#define LV_USE_PNG 0
+#define LV_USE_PNG 1
 
 /*BMP decoder library*/
 #define LV_USE_BMP 0
@@ -678,7 +678,7 @@
  *----------*/
 
 /*1: Enable API to take snapshot for object*/
-#define LV_USE_SNAPSHOT 0
+#define LV_USE_SNAPSHOT 1
 
 /*1: Enable Monkey test*/
 #define LV_USE_MONKEY 0

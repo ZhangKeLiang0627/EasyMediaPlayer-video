@@ -1,4 +1,13 @@
 #include "View.h"
+#include "Model.h"
+#include "../utils/log/log.h"
+#include "../../utils/FileOperations/FileOperations.h"
+#include "../../utils/Animations/Animations.h"
+
+extern "C"
+{
+#include "../../libs/lvgl/src/extra/libs/png/lodepng.h"
+}
 
 using namespace Page;
 
@@ -32,6 +41,7 @@ void View::create(Operations &opts)
     lv_obj_add_event_cb(ui.topCont.cancelBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.topCont.lockBtn, buttonEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.topCont.listBtn, buttonEventHandler, LV_EVENT_ALL, this);
+    lv_obj_add_event_cb(ui.topCont.screenshotBtn, buttonEventHandler, LV_EVENT_ALL, this);
 
     lv_obj_add_event_cb(ui.btnCont.slider, sliderEventHandler, LV_EVENT_ALL, this);
     lv_obj_add_event_cb(ui.sliderCont.volumeSlider, sliderEventHandler, LV_EVENT_ALL, this);
@@ -399,9 +409,9 @@ void View::topContCreate(lv_obj_t *obj)
 
     lv_obj_t *btn = btnCreate(cont, nullptr, 0, 0, 30, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -5, 4);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0);                // 设置按钮默认的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_FOCUSED); // 设置按钮在被按下时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0);         
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_PRESSED);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_FOCUSED);
     lv_obj_set_ext_click_area(btn, 10);
     ui.topCont.cancelBtn = btn;
     lv_obj_t *cancelBtnLabel = lv_label_create(ui.topCont.cancelBtn);
@@ -413,10 +423,9 @@ void View::topContCreate(lv_obj_t *obj)
 
     btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -50, 4);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), 0);                // 设置按钮默认的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色 // #ffd76d
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x646abb), LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), 0);         
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), LV_STATE_FOCUSED); 
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED);
     lv_obj_set_ext_click_area(btn, 10);
     ui.topCont.lockBtn = btn;
     lv_obj_t *lockBtnLabel = lv_label_create(ui.topCont.lockBtn);
@@ -429,9 +438,9 @@ void View::topContCreate(lv_obj_t *obj)
 
     btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 5, 4);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0);                // 设置按钮默认的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), LV_STATE_FOCUSED); // 设置按钮在被聚焦时的颜色
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); // 设置按钮在被按下时的颜色
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0);           
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), LV_STATE_FOCUSED);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); 
     lv_obj_set_ext_click_area(btn, 10);
     ui.topCont.listBtn = btn;
     lv_obj_t *listBtnLabel = lv_label_create(ui.topCont.listBtn);
@@ -439,7 +448,21 @@ void View::topContCreate(lv_obj_t *obj)
     lv_obj_set_style_text_font(listBtnLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(listBtnLabel, lv_color_hex(0xffffff), 0);
     lv_obj_center(listBtnLabel);
-    lv_label_set_text_fmt(listBtnLabel, "%s", "列表");    
+    lv_label_set_text_fmt(listBtnLabel, "%s", "列表");
+
+    btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
+    lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 55, 4);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x0078ba), 0);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x42d2f7), LV_STATE_FOCUSED);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x0078ba), LV_STATE_PRESSED);
+    lv_obj_set_ext_click_area(btn, 10);
+    ui.topCont.screenshotBtn = btn;
+    lv_obj_t *screenshotBtnLabel = lv_label_create(ui.topCont.screenshotBtn);
+    lv_obj_remove_style_all(screenshotBtnLabel);
+    lv_obj_set_style_text_font(screenshotBtnLabel, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(screenshotBtnLabel, lv_color_hex(0xffffff), 0);
+    lv_obj_center(screenshotBtnLabel);
+    lv_label_set_text_fmt(screenshotBtnLabel, "%s", "截图");
 
     lv_obj_t *videoNameLabel = lv_label_create(cont);
     lv_obj_remove_style_all(videoNameLabel);
@@ -653,6 +676,93 @@ void View::setBrightnessProgress(int cur, int total)
         lv_slider_set_value(ui.sliderCont.brightnessSlider, cur, LV_ANIM_OFF);
 }
 
+void View::sideTipsPopupCreate(lv_obj_t *obj, const char *tips)
+{
+    lv_obj_t *sidePop = lv_obj_create(obj);
+    lv_obj_remove_style_all(sidePop);
+    lv_obj_set_size(sidePop, 90, 40);
+    lv_obj_set_style_bg_opa(sidePop, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(sidePop, lv_color_hex(0xaaaaaa), LV_PART_MAIN);
+    lv_obj_align(sidePop, LV_ALIGN_BOTTOM_RIGHT, 60, -10);
+    lv_obj_set_style_radius(sidePop, 10, LV_PART_MAIN);
+    lv_obj_set_user_data(sidePop, (void *)"sidePop");
+    lv_obj_clear_state(sidePop, LV_STATE_CHECKED);
+
+    lv_obj_t *label = lv_label_create(sidePop);
+    lv_obj_remove_style_all(label);
+    lv_obj_set_size(label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_style_text_font(label, ui.fontCont.font20.font, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+    lv_obj_align(label, LV_ALIGN_LEFT_MID, 10, 0);
+    lv_label_set_text(label, tips);
+    lv_anim_move(sidePop, 10, -90, 700, 0);
+
+    // 创建一次性定时器，2秒后执行淡出动画
+    lv_timer_t *timer = lv_timer_create([](lv_timer_t *timer)
+                                        {
+            lv_obj_t *sidePop = (lv_obj_t *)timer->user_data;
+            lv_anim_drop_out(sidePop); }, 1500, sidePop);
+    lv_timer_set_repeat_count(timer, 1);
+}
+
+void View::convertRGB2BGR(lv_img_dsc_t *snapshot)
+{
+    uint8_t tmp_data = 0;
+    uint32_t count = 0;
+    for (int w = 0; w < snapshot->header.w; w++)
+    {
+        for (int h = 0; h < snapshot->header.h; h++)
+        {
+            tmp_data = *(snapshot->data + count);
+            *(uint8_t *)(snapshot->data + count) = *(snapshot->data + count + 2);
+            *(uint8_t *)(snapshot->data + count + 2) = tmp_data;
+            count += 4;
+        }
+    }
+}
+
+void View::screenshot(lv_obj_t *obj)
+{
+    char fileNameBuffer[128];
+    time_t timep;
+    struct tm *p;
+    char timeBuffer[64];
+
+    time(&timep);
+    p = gmtime(&timep);
+    strftime(timeBuffer, sizeof(timeBuffer), "picture/screenshot/screenshot-%Y%m%d-%H%M%S", p);
+
+    lv_snprintf(fileNameBuffer, sizeof(fileNameBuffer), "%s%s.%s", Model::getExeDirectory().c_str(), timeBuffer, "png");
+
+    lv_img_dsc_t *snapshot = lv_snapshot_take(obj, LV_IMG_CF_TRUE_COLOR_ALPHA);
+
+    unsigned int error = 0;
+    std::error_code ec;
+
+    log_debug("screenshot path: %s", fileNameBuffer);
+
+    if (!FileOperations::exists(fileNameBuffer, ec))
+    {
+        // 文件不存在，则创建
+        FileOperations::createAny(fileNameBuffer, false, true, ec);
+    }
+
+    // PNG的期望buffer为BGR，lv_snapshot得到的buffer是RGB，这里需要转换
+    convertRGB2BGR(snapshot);
+
+    error = lodepng_encode32_file(fileNameBuffer, snapshot->data, snapshot->header.w, snapshot->header.h);
+
+    log_debug("lodepng_error_text: %s -> %d", lodepng_error_text(error), error);
+
+    if (snapshot)
+    {
+        log_debug("snapshot has data, and kill it!");
+        lv_snapshot_free(snapshot);
+    }
+}
+
 void View::buttonEventHandler(lv_event_t *event)
 {
     View *instance = (View *)lv_event_get_user_data(event);
@@ -803,6 +913,12 @@ void View::buttonEventHandler(lv_event_t *event)
 
             if (instance->_opts.pauseCb != nullptr)
                 instance->_opts.pauseCb(); // 暂停播放
+        }
+        else if (obj == instance->ui.topCont.screenshotBtn)
+        {
+            log_debug("[View] screenshotBtn is short clicked");
+            screenshot(lv_scr_act());
+            instance->sideTipsPopupCreate(lv_layer_top(), "截图成功");
         }
         else if (obj == instance->ui.topCont.cancelBtn)
         {

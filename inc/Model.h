@@ -50,5 +50,8 @@ namespace Page
     public:
         Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex);
         ~Model();
+
+        // 获取当前可执行文件所在路径
+        static std::string getExeDirectory(void);
     };
 }
