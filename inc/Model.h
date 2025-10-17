@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-#include <functional>
 #include <dirent.h>
 #include "common_inc.h"
 #include "View.h"
@@ -14,12 +12,15 @@ namespace Page
     {
     public:
     private:
-        MediaPlayer *_mp;        // 媒体播放器对象指针
-        pthread_t _pthread;      // 数据处理线程
-        bool _threadExitFlag;    // 线程退出标志位
-        pthread_mutex_t *_mutex; // 互斥量
-        View _view;              // View的实例
-        lv_timer_t *_timer;      // LVGL软定时器
+        MediaPlayer *_mp;                         // 媒体播放器对象指针
+        std::mutex _mutex;                        // 互斥量
+        std::thread _threadLvgl;                  // lvgl线程
+        std::thread _threadDataProc;              // 数据处理线程
+        std::condition_variable _cv;              // 条件变量
+        std::atomic<bool> _threadExitFlag{false}; // 线程退出标志位
+        // bool _threadExitFlag;
+        View _view;                               // View的实例
+        lv_timer_t *_timer;                       // LVGL软定时器
 
         struct
         {
@@ -27,7 +28,15 @@ namespace Page
         } _priv; // 零零散散的变量
 
     private:
-        static void *threadProcHandler(void *);
+        /**
+         * @brief LVGL处理线程
+         */
+        void threadLvglHandler(void);
+        /**
+         * @brief data处理线程
+         */
+        void threadDataProcHandler(void);
+
         void update(void);
         static void onTimerUpdate(lv_timer_t *timer);
 
@@ -48,7 +57,7 @@ namespace Page
         void setLoop(bool isLoop);
 
     public:
-        Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex);
+        Model(std::function<void(void)> exitCb);
         ~Model();
 
         // 获取当前可执行文件所在路径

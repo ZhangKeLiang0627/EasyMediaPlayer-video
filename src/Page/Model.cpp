@@ -1,5 +1,4 @@
 #include "Model.h"
-#include <cstring>
 
 #define VIDEO_DIR "/mnt/UDISK/video/"
 #define SD_VIDEO_DIR "/mnt/exUDISK/video/"
@@ -15,10 +14,9 @@ static const char *fileType[] = {".avi", ".mkv", ".flv", ".ts", ".mp4", ".webm",
  * @param exitCb
  * @param mutex
  */
-Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
+Model::Model(std::function<void(void)> exitCb)
 {
     _threadExitFlag = false;
-    _mutex = &mutex;
 
     // 设置UI回调函数
     Operations uiOpts = {0};
@@ -42,20 +40,42 @@ Model::Model(std::function<void(void)> exitCb, pthread_mutex_t &mutex)
     // 这里设置一个1000ms的定时器，软定时器，用于在onTimerUpdate里update
     _timer = lv_timer_create(onTimerUpdate, 1000, this);
 
-    // 创建执行线程，传递this指针
-    pthread_create(&_pthread, NULL, threadProcHandler, this);
+    // 创建lvgl处理线程，传递this指针
+    _threadLvgl = std::thread([](Model *pThis)
+                              { pThis->threadLvglHandler(); }, this);
+
+    // 创建data处理线程，传递this指针
+    _threadDataProc = std::thread([](Model *pThis)
+                                  { pThis->threadDataProcHandler(); }, this);
+
+    // _cv.notify_all(); 
 }
 
 Model::~Model()
 {
     _threadExitFlag = true;
 
+    // _cv.notify_all(); // 唤醒休眠中的线程，使其立即检查退出标志
+
     // 等待线程退出，回收资源
-    pthread_join(_pthread, NULL);
+    if (_threadLvgl.joinable())
+    {
+        log_info("[Model] joining _threadLvgl...");
+        _threadLvgl.join();
+        log_info("[Model] _threadLvgl joined");
+    }
+
+    if (_threadDataProc.joinable())
+    {
+        log_info("[Model] joining _threadDataProc...");
+        _threadDataProc.join();
+        log_info("[Model] _threadDataProc joined");
+    }
 
     lv_timer_del(_timer);
-
     _view.release();
+
+    log_info("[Model] ~Model exit!");
 }
 
 /**
@@ -136,9 +156,10 @@ int Model::searchVideo(std::string path)
         if (legalVideo == true)
         {
             legalVideo = false;
-            pthread_mutex_lock(_mutex);
-            _view.addVideoList(ent->d_name, nullptr);
-            pthread_mutex_unlock(_mutex);
+            {
+                std::unique_lock<std::mutex> lock(_mutex);
+                _view.addVideoList(ent->d_name, nullptr);
+            }
             count++;
         }
     }
@@ -149,43 +170,57 @@ int Model::searchVideo(std::string path)
 }
 
 /**
- * @brief 线程处理函数
- *
- * @return void*
+ * @brief LVGL处理线程
  */
-void *Model::threadProcHandler(void *arg)
+void Model::threadLvglHandler(void)
 {
-    Model *model = static_cast<Model *>(arg); // 将arg转换为Model指针
+    while (!_threadExitFlag)
+    {
+        log_info("[Model] threadLvglHandler geting lock...");
+        std::unique_lock<std::mutex> lock(_mutex);
+        log_info("[Model] threadLvglHandler get lock!");
+        
+        uint32_t ms = lv_task_handler();
 
-    model->_mp = new MediaPlayer(); // 创建播放器
+        log_info("[Model] lv_task_handler return, ms: %d", ms);
+
+        lock.unlock();
+
+        log_info("[Model] threadLvglHandler unlock!");
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+    }
+    log_info("[Model] threadLvglHandler exit!");
+}
+
+/**
+ * @brief data处理线程
+ */
+void Model::threadDataProcHandler(void)
+{
+    _mp = new MediaPlayer(); // 创建播放器
     // 直接播放某视频
     // std::string url = "/mnt/UDISK/video1.mp4";
-    // model->_mp->SetNewVideo(url);
+    // _mp->SetNewVideo(url);
     usleep(50000);
 
     // 手动添加视频至播放列表
-    // model->_view.addVideoList("video1.mp4", nullptr);
-    // model->_view.addVideoList("video2.mp4", nullptr);
-    // model->_view.addVideoList("video3.mp4", nullptr);
+    // _view.addVideoList("video1.mp4", nullptr);
+    // _view.addVideoList("video2.mp4", nullptr);
+    // _view.addVideoList("video3.mp4", nullptr);
 
     // 搜索并添加视频至播放列表
-    model->searchVideo(VIDEO_DIR);
-    model->searchVideo(SD_VIDEO_DIR);
+    searchVideo(VIDEO_DIR);
+    searchVideo(SD_VIDEO_DIR);
 
-    while (!model->_threadExitFlag)
+    while (!_threadExitFlag)
     {
-        // 获取当前视频的进度和总时长
-        // int cur = model->_mp->GetCurrentPos();
-        // int total = model->_mp->GetDuration();
-
-        // pthread_mutex_lock(model->_mutex);
-        // model->_view.setPlayProgress(cur / 1000, total / 1000);
-        // pthread_mutex_unlock(model->_mutex);
 
         usleep(50000);
     }
 
-    delete model->_mp;
+    delete _mp;
+    log_info("[Model] threadDataProcHandler exit!");
 }
 
 /**
