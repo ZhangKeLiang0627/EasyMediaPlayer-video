@@ -35,6 +35,7 @@ Model::Model(std::function<void(void)> exitCb)
     uiOpts.setFullScreenCb = std::bind(&Model::setFullScreen, this, std::placeholders::_1);
     uiOpts.setLoopCb = std::bind(&Model::setLoop, this, std::placeholders::_1);
 
+    // ui create
     _view.create(uiOpts);
 
     // 这里设置一个1000ms的定时器，软定时器，用于在onTimerUpdate里update

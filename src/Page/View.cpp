@@ -377,8 +377,8 @@ void View::listContCreate(lv_obj_t *obj)
     lv_obj_set_style_pad_all(cont, 25, LV_PART_MAIN); // 设置每一个item的宽度
     lv_obj_set_style_pad_row(cont, 20, LV_PART_MAIN); // 设置每一个item的间距
 
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);       // 设置弹性布局，item竖着排
-    lv_obj_set_scroll_dir(cont, LV_DIR_VER);               // 设置画布滚动方向：垂直滚动
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);     // 设置弹性布局，item竖着排
+    lv_obj_set_scroll_dir(cont, LV_DIR_VER);             // 设置画布滚动方向：垂直滚动
     lv_obj_set_scroll_snap_y(cont, LV_SCROLL_SNAP_NONE); // 设置在垂直滚动结束时捕捉子元素的位置：人话：打开菜单第一个item的位置
     lv_obj_set_style_clip_corner(cont, true, LV_PART_MAIN);
 
@@ -409,7 +409,7 @@ void View::topContCreate(lv_obj_t *obj)
 
     lv_obj_t *btn = btnCreate(cont, nullptr, 0, 0, 30, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -5, 4);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0);         
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xff6056), 0);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_PRESSED);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe44543), LV_STATE_FOCUSED);
     lv_obj_set_ext_click_area(btn, 10);
@@ -423,9 +423,10 @@ void View::topContCreate(lv_obj_t *obj)
 
     btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -50, 4);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), 0);         
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), LV_STATE_FOCUSED); 
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), 0);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x4ea35a), LV_STATE_FOCUSED);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x646abb), LV_STATE_USER_1);
     lv_obj_set_ext_click_area(btn, 10);
     ui.topCont.lockBtn = btn;
     lv_obj_t *lockBtnLabel = lv_label_create(ui.topCont.lockBtn);
@@ -438,9 +439,9 @@ void View::topContCreate(lv_obj_t *obj)
 
     btn = btnCreate(cont, nullptr, 0, 0, 40, 30);
     lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 5, 4);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0);           
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), 0);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xe09f00), LV_STATE_FOCUSED);
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED); 
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xffd76d), LV_STATE_PRESSED);
     lv_obj_set_ext_click_area(btn, 10);
     ui.topCont.listBtn = btn;
     lv_obj_t *listBtnLabel = lv_label_create(ui.topCont.listBtn);
@@ -922,7 +923,12 @@ void View::buttonEventHandler(lv_event_t *event)
         }
         else if (obj == instance->ui.topCont.cancelBtn)
         {
-            instance->_opts.exitCb();
+            if (instance->_opts.exitCb)
+            {
+                log_debug("[View] exitCb begin!");
+                instance->_opts.exitCb();
+                log_debug("[View] exitCb end!");
+            }
         }
     }
 }
