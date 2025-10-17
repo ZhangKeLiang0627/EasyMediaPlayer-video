@@ -171,22 +171,12 @@ void Model::threadLvglHandler(void)
 {
     while (!_threadExitFlag)
     {
-        log_info("[Model] threadLvglHandler geting lock...");
         std::unique_lock<std::mutex> lock(_mutex);
-        log_info("[Model] threadLvglHandler get lock!");
-        
         uint32_t ms = lv_task_handler();
-
-        log_info("[Model] lv_task_handler return, ms: %d", ms);
-
         lock.unlock();
-
-        log_info("[Model] threadLvglHandler unlock!");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     }
-
-    log_info("[Model] threadLvglHandler exit!");
 }
 
 /**
