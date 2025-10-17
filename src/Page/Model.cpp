@@ -202,7 +202,7 @@ void Model::threadDataProcHandler(void)
     while (!_threadExitFlag)
     {
 
-        usleep(50000);
+        usleep(5000);
     }
 
     delete _mp;
