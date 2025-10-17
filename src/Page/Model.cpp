@@ -44,6 +44,7 @@ Model::Model(std::function<void(void)> exitCb)
     // 创建lvgl处理线程，传递this指针
     _threadLvgl = std::thread([](Model *pThis)
                               { pThis->threadLvglHandler(); }, this);
+    _threadLvgl.detach();
 
     // 创建data处理线程，传递this指针
     _threadDataProc = std::thread([](Model *pThis)
@@ -59,13 +60,6 @@ Model::~Model()
     // _cv.notify_all(); // 唤醒休眠中的线程，使其立即检查退出标志
 
     // 等待线程退出，回收资源
-    if (_threadLvgl.joinable())
-    {
-        log_info("[Model] joining _threadLvgl...");
-        _threadLvgl.join();
-        log_info("[Model] _threadLvgl joined");
-    }
-
     if (_threadDataProc.joinable())
     {
         log_info("[Model] joining _threadDataProc...");
@@ -191,6 +185,7 @@ void Model::threadLvglHandler(void)
 
         std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     }
+
     log_info("[Model] threadLvglHandler exit!");
 }
 
