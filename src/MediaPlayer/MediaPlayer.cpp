@@ -1,3 +1,6 @@
+#ifdef __arm__
+/* 32位ARM架构 / arm */
+
 #include "MediaPlayer.h"
 
 static bool fullScreenState = false;
@@ -423,3 +426,5 @@ int CallbackForTPlayer(void *pUserData, int msg, int param0, void *param1)
 
     return 0;
 }
+
+#endif /* 32位ARM架构 / arm */

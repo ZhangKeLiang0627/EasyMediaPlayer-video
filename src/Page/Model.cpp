@@ -50,7 +50,7 @@ Model::Model(std::function<void(void)> exitCb)
     _threadDataProc = std::thread([](Model *pThis)
                                   { pThis->threadDataProcHandler(); }, this);
 
-    // _cv.notify_all(); 
+    // _cv.notify_all();
 }
 
 Model::~Model()

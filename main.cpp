@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 
     log_info("[Sys] eMP_mainPage begin!");
 
+#ifdef __arm__
     // 清除fb0
     system("dd if=/dev/zero of=/dev/fb0");
     // 打开音频通路并设置音量
@@ -21,6 +22,7 @@ int main(int argc, char *argv[])
     // TODO：解决重复挂载的问题
     system("mount /dev/sda /mnt/exUDISK/");
     system("mount /dev/sda1 /mnt/exUDISK/");
+#endif
 
     // Init HAL
     HAL::Init();

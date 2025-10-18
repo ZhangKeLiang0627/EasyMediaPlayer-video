@@ -56,7 +56,7 @@ if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
     add_definitions(-DPROJECT_PATH="${PROJECT_SOURCE_DIR}")
     add_definitions(-DRESOURCES_PATH="${PROJECT_SOURCE_DIR}")
 
-    message(FATAL_ERROR "ERROR: This project does NOT support x86 architecture (current: ${CMAKE_HOST_SYSTEM_PROCESSOR}). Please use non-x86 cross-compilation environment.")
+    # message(FATAL_ERROR "ERROR: This project does NOT support x86 architecture (current: ${CMAKE_HOST_SYSTEM_PROCESSOR}). Please use non-x86 cross-compilation environment.")
     
 else()
     # 交叉编译时可以添加特定设置
