@@ -16,6 +16,9 @@ CFLAGS ?= -O3 -g0 -I$(LVGL_DIR)/ -Wall -Wno-unused-function -Wno-unused-variable
 LDFLAGS ?= -lm
 CXXFLAGS ?= $(CFLAGS) 
 
+# 与 CMakeLists.txt 保持一致的宏定义（lodepng 以 C 模式编译，避免 C++ 重载冲突）
+CFLAGS += -DLODEPNG_NO_COMPILE_CPP
+
 CSRCS ?= 
 CXXSRCS ?= 
 
@@ -25,12 +28,14 @@ CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/include/al
 CFLAGS += -I/home/hugokkl/tina-sdk/out/t113-pi/compile_dir/target/freetype-2.13.2/include
 CFLAGS += -I$(PROJECT_DIR)/inc
 CFLAGS += -I$(PROJECT_DIR)/utils
+# spdlog 头文件路径
+CFLAGS += -I$(PROJECT_DIR)/libs/spdlog/include
 
 CFLAGS += -pipe -march=armv7-a -mtune=cortex-a7 -mfpu=neon -mfloat-abi=hard -fstack-protector  
 
 LDFLAGS += -L/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/lib
 LDFLAGS += -L/home/hugokkl/tina-sdk/out/t113-pi/staging_dir/target/usr/lib  
-LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++ -lfreetype
+LDFLAGS += -ltplayer -lcdx_base -lncurses -lpthread -lstdc++ -lstdc++fs -lfreetype
 
 # Collect the files to compile
 # CXXSRCS += ./src/mediaPlayer.cpp

@@ -70,6 +70,19 @@ Model::~Model()
     lv_timer_del(_timer);
     _view.release();
 
+    // 播放器销毁（TPlayerReset/TPlayerDestroy）在播放过程中会同步停止整条
+    // 解码流水线（等待各渲染/解码组件线程退出），耗时可达数秒。若在退出路径
+    // 上同步执行，点击退出按钮后需等待很久才能返回。因此放到后台线程异步
+    // 销毁，不阻塞退出流程；随后进程调用 exit() 时，内核会回收残留资源。
+    if (_mp != nullptr)
+    {
+        MediaPlayer *mp = _mp;
+        _mp = nullptr;
+        std::thread([mp]()
+                    { delete mp; })
+            .detach();
+    }
+
     log_info("[Model] ~Model exit!");
 }
 
@@ -205,7 +218,8 @@ void Model::threadDataProcHandler(void)
         usleep(5000);
     }
 
-    delete _mp;
+    // 播放器销毁（TPlayerReset/TPlayerDestroy）在播放中可能阻塞数秒，
+    // 不在此处执行，改由析构函数后台异步销毁，避免阻塞退出流程
     log_info("[Model] threadDataProcHandler exit!");
 }
 
